@@ -175,7 +175,7 @@ export default function HistoryPage() {
                     <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: 2 }}>{meal.name}</div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: 4 }}>{meal.foods?.length} food items</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-faint)' }}>
-                      {new Date(meal.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                      {new Date(meal.createdAt).toLocaleDateString('en-GB').replace(/\//g, '-')}
                       {' · '}{new Date(meal.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
