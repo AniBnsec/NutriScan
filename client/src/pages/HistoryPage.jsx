@@ -99,13 +99,30 @@ export default function HistoryPage() {
 
   useEffect(() => { fetchMeals(1, dateFilter); }, [dateFilter]);
 
-  const handleDelete = async (id, e) => {
+  const handleDelete = (id, e) => {
     e.stopPropagation();
-    if (!window.confirm(t('history.deleteMeal'))) return;
-    setDeleting(id);
-    try { await deleteMeal(id); toast.success(t('history.mealDeleted')); if (selected?._id === id) setSelected(null); }
-    catch { toast.error('Failed to delete'); }
-    finally { setDeleting(null); }
+    toast(
+      (tToast) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ fontWeight: 600 }}>{t('history.deleteMeal') || 'Delete this meal?'}</div>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <button className="btn btn-ghost btn-sm" onClick={() => toast.dismiss(tToast.id)}>Cancel</button>
+            <button className="btn btn-primary btn-sm" style={{ background: '#ff6b6b', borderColor: '#ff6b6b' }} onClick={() => {
+              toast.dismiss(tToast.id);
+              setDeleting(id);
+              deleteMeal(id)
+                .then(() => {
+                  toast.success(t('history.mealDeleted'));
+                  if (selected?._id === id) setSelected(null);
+                })
+                .catch(() => toast.error('Failed to delete'))
+                .finally(() => setDeleting(null));
+            }}>Delete</button>
+          </div>
+        </div>
+      ),
+      { duration: Infinity, position: 'top-center' }
+    );
   };
 
   const handleExport = () => {
@@ -168,8 +185,18 @@ export default function HistoryPage() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div className="meal-card-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', background: 'var(--surface-light)', borderRadius: 10, width: 60, height: 60 }}>
-                    {MEAL_EMOJIS[meal.mealType] || '🍽️'}
+                  <div className="meal-card-img" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', background: 'var(--surface-light)', borderRadius: 10, width: 60, height: 60, overflow: 'hidden' }}>
+                    {meal.image && (
+                      <img 
+                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${meal.image}`} 
+                        alt={meal.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0, zIndex: 1 }}
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    )}
+                    <div style={{ position: 'relative', zIndex: 0 }}>
+                      {MEAL_EMOJIS[meal.mealType] || '🍽️'}
+                    </div>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: 2 }}>{meal.name}</div>
