@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api/client';
-import { calcHealthScore, getScoreColor } from '../utils/helpers';
+import { calcHealthScore, getScoreColor, MEAL_EMOJIS } from '../utils/helpers';
 
 export default function GalleryPage() {
   const [meals, setMeals] = useState([]);
@@ -55,7 +55,9 @@ export default function GalleryPage() {
               <motion.div key={meal._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.04 }}
                 onClick={() => setSelected(meal)} style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', cursor: 'pointer', aspectRatio: '1' }}
                 whileHover={{ scale: 1.03 }}>
-                <img src={`http://localhost:5000${meal.image}`} alt={meal.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '5rem', background: 'var(--surface-light)' }}>
+                  {MEAL_EMOJIS[meal.mealType] || '🍽️'}
+                </div>
                 {/* Overlay */}
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 50%)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 12 }}>
                   <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#fff', lineHeight: 1.2 }}>{meal.name}</div>
@@ -79,7 +81,9 @@ export default function GalleryPage() {
             onClick={() => setSelected(null)}>
             <motion.div initial={{ scale: 0.85 }} animate={{ scale: 1 }} exit={{ scale: 0.85 }} onClick={e => e.stopPropagation()}
               style={{ maxWidth: 600, width: '100%', borderRadius: 20, overflow: 'hidden' }}>
-              <img src={`http://localhost:5000${selected.image}`} alt={selected.name} style={{ width: '100%', maxHeight: '65vh', objectFit: 'contain', background: '#000' }} />
+              <div style={{ width: '100%', height: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10rem', background: 'var(--surface-light)' }}>
+                {MEAL_EMOJIS[selected.mealType] || '🍽️'}
+              </div>
               <div className="glass" style={{ padding: 20, borderRadius: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
