@@ -545,6 +545,12 @@ select option {
   .grid-4 { grid-template-columns: 1fr; }
   .macro-grid { grid-template-columns: repeat(3, 1fr); }
   .hide-on-mobile-xs { display: none !important; }
+  
+  /* Make landing page text and buttons smaller on phone */
+  h1 { font-size: 2rem !important; }
+  .hero h1 { font-size: 2.2rem !important; }
+  .hero p { font-size: 0.95rem; margin-bottom: 24px; }
+  .btn-lg { padding: 12px 20px; font-size: 1rem; }
 }
 
 /* ── Animations ── */
