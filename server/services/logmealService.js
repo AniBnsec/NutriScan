@@ -79,31 +79,33 @@ async function analyzeFoodImage(imagePath) {
        console.error('⚠️ Could not fetch LogMeal nutrition, will fallback to local DB:', e.response?.data || e.message);
     }
 
-    const foods = [];
-    for (const { bestMatch } of validSegments) {
-      // Map LogMeal nutrition if available
-      let mappedNutrition = null;
-      if (nutritionData) {
-         mappedNutrition = {
-            calories: nutritionData.calories || nutritionData.energy || 0,
-            protein: nutritionData.macronutrients?.proteins || nutritionData.totalNutrients?.PROCNT?.quantity || 0,
-            carbs: nutritionData.macronutrients?.carbohydrates || nutritionData.totalNutrients?.CHOCDF?.quantity || 0,
-            fat: nutritionData.macronutrients?.fat || nutritionData.totalNutrients?.FAT?.quantity || 0,
-            fiber: nutritionData.macronutrients?.fiber || nutritionData.totalNutrients?.FIBTG?.quantity || 0,
-            sugar: nutritionData.macronutrients?.sugar || nutritionData.totalNutrients?.SUGAR?.quantity || 0,
-            sodium: nutritionData.macronutrients?.sodium || nutritionData.totalNutrients?.NA?.quantity || 0,
-         };
-      }
-
-      foods.push({
-        name: bestMatch.name,
-        portion_g: 150, // default portion
-        confidence: bestMatch.prob,
-        category: 'other',
-        description: mappedNutrition ? `Real macros from LogMeal AI` : `Detected by LogMeal AI`,
-        logmealNutrition: mappedNutrition // pass it to the route
-      });
+    // LogMeal returns the TOTAL nutrition for the entire image. 
+    // To prevent doubling the calories, we combine all detected segments into one "Meal" item.
+    
+    let mappedNutrition = null;
+    if (nutritionData) {
+       mappedNutrition = {
+          calories: nutritionData.calories || nutritionData.energy || 0,
+          protein: nutritionData.macronutrients?.proteins || nutritionData.totalNutrients?.PROCNT?.quantity || 0,
+          carbs: nutritionData.macronutrients?.carbohydrates || nutritionData.totalNutrients?.CHOCDF?.quantity || 0,
+          fat: nutritionData.macronutrients?.fat || nutritionData.totalNutrients?.FAT?.quantity || 0,
+          fiber: nutritionData.macronutrients?.fiber || nutritionData.totalNutrients?.FIBTG?.quantity || 0,
+          sugar: nutritionData.macronutrients?.sugar || nutritionData.totalNutrients?.SUGAR?.quantity || 0,
+          sodium: nutritionData.macronutrients?.sodium || nutritionData.totalNutrients?.NA?.quantity || 0,
+       };
     }
+
+    const combinedNames = validSegments.map(s => s.bestMatch.name).join(' and ');
+    const avgConfidence = validSegments.reduce((sum, s) => sum + s.bestMatch.prob, 0) / validSegments.length;
+
+    const foods = [{
+      name: combinedNames,
+      portion_g: 150 * validSegments.length,
+      confidence: avgConfidence,
+      category: 'other',
+      description: mappedNutrition ? `Real macros from LogMeal AI` : `Detected by LogMeal AI`,
+      logmealNutrition: mappedNutrition
+    }];
 
     return {
       foods: foods,
