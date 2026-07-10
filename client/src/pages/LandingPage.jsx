@@ -54,11 +54,11 @@ export default function LandingPage() {
     <div className="landing">
       {/* Navbar */}
       <nav className="landing-nav">
-        <div className="logo-mark" style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: '1.25rem' }}>
+        <div className="logo-mark" style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: '1.25rem', whiteSpace: 'nowrap' }}>
           <img src="/LOGO.png" alt="Logo" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'cover' }} />
-          <span style={{ color: '#fff' }}>NutriScan</span>
+          <span style={{ color: '#fff' }} className="hide-on-mobile-xs">NutriScan</span>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <Link to="/login" className="btn btn-ghost btn-sm">{t('landing.signIn')}</Link>
           <Link to="/register" className="btn btn-primary btn-sm">{t('landing.getStarted')}</Link>
         </div>

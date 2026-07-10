@@ -150,19 +150,19 @@ export default function DashboardPage() {
 
   return (
     <div className="page-inner">
-      <div className="page-header fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <h1>{t('dashboard.title')}</h1>
-          <p>Good {getGreeting(t)}, <strong>{user?.name?.split(' ')[0]}</strong>! Here's your nutrition today.</p>
+      <div className="page-header fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
+        <div style={{ flex: '1 1 min-content' }}>
+          <h1 style={{ wordBreak: 'break-word' }}>{t('dashboard.title')}</h1>
+          <p>Good {getGreeting(t)}, <strong>{user?.name?.split(' ')[0]}</strong>!<br/>Here's your nutrition today.</p>
         </div>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <button className="hide-print" onClick={toggleTheme} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 42, height: 42, borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text)', cursor: 'pointer', transition: 'all 0.3s' }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <button className="hide-print btn btn-ghost" onClick={toggleTheme} style={{ padding: '10px' }}>
             <span style={{ fontSize: '1.2rem' }}>{theme === 'dark' ? '☀️' : '🌙'}</span>
           </button>
-          <button className="hide-print" onClick={handleDownloadPDF} style={{ display: 'flex', alignItems: 'center', gap: 10, background: theme === 'dark' ? 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03))' : 'linear-gradient(135deg, rgba(0,0,0,0.05), rgba(0,0,0,0.02))', color: 'var(--text)', border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}`, padding: '10px 20px', borderRadius: '12px', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', fontWeight: 600, fontSize: '0.95rem' }} onMouseEnter={(e) => { e.currentTarget.style.background = theme === 'dark' ? 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08))' : 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = theme === 'dark' ? 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03))' : 'linear-gradient(135deg, rgba(0,0,0,0.05), rgba(0,0,0,0.02))'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <span style={{ fontSize: '1.2rem' }}>📄</span> Download Report
+          <button className="hide-print btn btn-ghost" onClick={handleDownloadPDF}>
+            <span style={{ fontSize: '1.2rem' }}>📄</span> <span className="hide-on-mobile">Download</span>
           </button>
-          <Link to="/scanner" className="btn btn-primary hide-print" style={{ padding: '10px 24px', borderRadius: '12px', fontSize: '1rem', fontWeight: 600, boxShadow: '0 4px 15px rgba(0,229,160,0.3)' }}>{t('dashboard.scanFood')}</Link>
+          <Link to="/scanner" className="btn btn-primary hide-print">{t('dashboard.scanFood')}</Link>
         </div>
       </div>
 
