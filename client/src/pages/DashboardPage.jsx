@@ -56,18 +56,18 @@ function GoalRing({ value, goal, label, color, unit = '' }) {
   const pct = goal > 0 ? Math.min((value / goal) * 100, 100) : 0;
   const { t } = useTranslation();
   return (
-    <div className="glass stat-card" style={{ alignItems: 'center', textAlign: 'center', padding: '18px 12px' }}>
-      <div style={{ position: 'relative', width: 130, height: 130 }}>
+    <div className="glass stat-card goal-card" style={{ alignItems: 'center', textAlign: 'center' }}>
+      <div className="goal-ring-chart" style={{ position: 'relative' }}>
         <ResponsiveContainer width="100%" height="100%">
-          <RadialBarChart innerRadius={46} outerRadius={62} data={[{ value: pct, fill: color }]} startAngle={90} endAngle={-270}>
+          <RadialBarChart innerRadius="70%" outerRadius="100%" data={[{ value: pct, fill: color }]} startAngle={90} endAngle={-270}>
             <RadialBar dataKey="value" cornerRadius={6} background={{ fill: 'rgba(255,255,255,0.05)' }} />
           </RadialBarChart>
         </ResponsiveContainer>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: '1.2rem', fontWeight: 800, color }}>{Math.round(pct)}%</span>
+          <span className="goal-ring-pct" style={{ fontWeight: 800, color }}>{Math.round(pct)}%</span>
         </div>
       </div>
-      <div style={{ fontSize: '1.4rem', fontWeight: 700, fontFamily: 'Space Grotesk', marginTop: 12 }}>{value}{unit}</div>
+      <div className="goal-ring-val" style={{ fontWeight: 700, fontFamily: 'Space Grotesk', marginTop: 12 }}>{value}{unit}</div>
       <div style={{ fontSize: '0.85rem', color: 'var(--text-faint)', marginTop: 2 }}>{t('dashboard.ofGoal', { goal: goal + unit })}</div>
       <div style={{ fontSize: '0.95rem', color: 'var(--text-muted)', fontWeight: 500, marginTop: 4 }}>{label}</div>
     </div>

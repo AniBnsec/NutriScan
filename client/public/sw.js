@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nutriscan-v7';
+const CACHE_NAME = 'nutriscan-v8';
 const STATIC_ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', (event) => {

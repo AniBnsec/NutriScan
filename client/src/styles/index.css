@@ -262,8 +262,13 @@ select option {
 .stat-value { font-size: 2rem; font-weight: 800; font-family: 'Space Grotesk', sans-serif; }
 .stat-sub { font-size: 0.85rem; color: var(--text-muted); }
 
-/* ── Progress Bar ── */
+/* ── Progress Bar & Goal Rings ── */
 .progress-wrap { display: flex; flex-direction: column; gap: 6px; }
+
+.goal-card { padding: 18px 12px; }
+.goal-ring-chart { width: 130px; height: 130px; margin: 0 auto; }
+.goal-ring-pct { font-size: 1.2rem; }
+.goal-ring-val { font-size: 1.4rem; }
 .progress-header { display: flex; justify-content: space-between; align-items: center; }
 .progress-label { font-size: 0.95rem; font-weight: 500; }
 .progress-value { font-size: 0.95rem; color: var(--text-muted); }
@@ -563,6 +568,13 @@ select option {
   .hero h1 { font-size: 2.2rem !important; }
   .hero p { font-size: 0.95rem; margin-bottom: 24px; }
   .btn-lg { padding: 12px 20px; font-size: 1rem; }
+  
+  /* Shrink Goal Rings and their container so they don't overflow horizontally */
+  .chart-wrap { padding: 16px 12px; }
+  .goal-card { padding: 12px 8px; }
+  .goal-ring-chart { width: 85px; height: 85px; }
+  .goal-ring-pct { font-size: 1rem; }
+  .goal-ring-val { font-size: 1.15rem; }
 }
 
 /* ── Animations ── */
