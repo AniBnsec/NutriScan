@@ -4,10 +4,8 @@ const auth = require('../middleware/auth');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const DailyLog = require('../models/DailyLog');
 
+// Gemini removed per user request
 let genAI = null;
-try {
-  if (process.env.GEMINI_API_KEY) genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-} catch (e) { console.log('Gemini not available for coach'); }
 
 // POST /api/coach/chat
 router.post('/chat', auth, async (req, res) => {
