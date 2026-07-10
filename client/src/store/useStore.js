@@ -1,11 +1,29 @@
 import { create } from 'zustand';
 import api from '../api/client';
 
+const safeGetJSON = (key, fallback) => {
+  try {
+    const item = localStorage.getItem(key);
+    if (!item || item === 'undefined') return fallback;
+    return JSON.parse(item);
+  } catch (e) {
+    return fallback;
+  }
+};
+
+const safeGetItem = (key, fallback = null) => {
+  try {
+    return localStorage.getItem(key) || fallback;
+  } catch (e) {
+    return fallback;
+  }
+};
+
 const useStore = create((set, get) => ({
   // ── Auth ───────────────────────────────────────────────
-  user: JSON.parse(localStorage.getItem('user') || 'null'),
-  token: localStorage.getItem('token') || null,
-  isAuthenticated: !!localStorage.getItem('token'),
+  user: safeGetJSON('user', null),
+  token: safeGetItem('token'),
+  isAuthenticated: !!safeGetItem('token'),
 
   login: async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });

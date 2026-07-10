@@ -43,7 +43,10 @@ function resolve(obj, key) {
 }
 
 export function LanguageProvider({ children }) {
-  const [lang, setLangState] = useState(() => localStorage.getItem('language') || 'en');
+  const [lang, setLangState] = useState(() => {
+    try { return localStorage.getItem('language') || 'en'; }
+    catch(e) { return 'en'; }
+  });
 
   const applyDirection = useCallback((code) => {
     const dir = RTL_LANGUAGES.includes(code) ? 'rtl' : 'ltr';

@@ -15,11 +15,13 @@ if ('serviceWorker' in navigator) {
 }
 
 // Apply saved theme on load
-const savedTheme = localStorage.getItem('theme') || 'dark';
+let savedTheme = 'dark';
+try { savedTheme = localStorage.getItem('theme') || 'dark'; } catch(e) {}
 document.documentElement.setAttribute('data-theme', savedTheme);
 
 // Apply saved language direction on load
-const savedLang = localStorage.getItem('language') || 'en';
+let savedLang = 'en';
+try { savedLang = localStorage.getItem('language') || 'en'; } catch(e) {}
 document.documentElement.setAttribute('lang', savedLang);
 document.documentElement.setAttribute('dir', RTL_LANGUAGES.includes(savedLang) ? 'rtl' : 'ltr');
 
