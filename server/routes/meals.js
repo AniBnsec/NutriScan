@@ -38,11 +38,28 @@ router.post('/scan', auth, upload.single('image'), async (req, res) => {
 
     const imagePath = req.file.path;
     const { foods: rawFoods, duration } = await analyzeFoodImage(imagePath);
-    const enrichedFoods = enrichFoodsWithNutrition(rawFoods);
+    
+    // Enrich with local nutrition ONLY IF LogMeal did not already provide it
+    const enrichedFoods = rawFoods.map(food => {
+       if (food.logmealNutrition && food.logmealNutrition.calories > 0) {
+          // It has real macros from LogMeal!
+          return {
+             ...food,
+             nutrition: food.logmealNutrition
+          };
+       } else {
+          // Fallback to local enrichment
+          return enrichFoodsWithNutrition([food])[0];
+       }
+    });
 
     // Build totals
     const totals = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sugar: 0, sodium: 0, vitaminA: 0, vitaminC: 0, vitaminD: 0, vitaminB12: 0, iron: 0, calcium: 0, potassium: 0 };
-    enrichedFoods.forEach(f => { Object.keys(totals).forEach(k => { totals[k] += f.nutrition[k] || 0; }); });
+    enrichedFoods.forEach(f => { 
+        if(f.nutrition) {
+            Object.keys(totals).forEach(k => { totals[k] += f.nutrition[k] || 0; }); 
+        }
+    });
     Object.keys(totals).forEach(k => { totals[k] = Math.round(totals[k] * 10) / 10; });
 
     res.json({ foods: enrichedFoods, totals, duration, imagePath: `/uploads/${path.basename(imagePath)}` });
