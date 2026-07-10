@@ -96,7 +96,12 @@ INSTRUCTIONS:
     res.json({ reply, context: { calories: todayLog?.totals?.calories || 0, mealCount: todayLog?.mealCount || 0 } });
   } catch (e) {
     console.error('Coach error:', e.message);
-    res.json({ reply: `I'm having trouble connecting right now, but based on your data I can see you've logged ${req.body.context?.mealCount || 0} meals today. Keep tracking your nutrition for best results! 🥗` });
+    const isApiKeyError = e.message.includes('API key not valid') || e.message.includes('403');
+    const replyMsg = isApiKeyError 
+      ? '⚠️ Your Gemini API key is invalid! Please check the GEMINI_API_KEY environment variable in Render.'
+      : `I'm having trouble connecting right now (Error: ${e.message}). Keep tracking your nutrition! 🥗`;
+    
+    res.json({ reply: replyMsg });
   }
 });
 
