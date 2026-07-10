@@ -1,130 +1,86 @@
-const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
-const FormData = require('form-data');
-const path = require('path');
 require('dotenv').config();
-
-const LOGMEAL_API_TOKEN = process.env.LOGMEAL_API_TOKEN;
 
 async function analyzeFoodImage(imagePath) {
   const startTime = Date.now();
   
-  if (!LOGMEAL_API_TOKEN) {
-    console.warn('⚠️  LOGMEAL_API_TOKEN not set — using mock food recognition');
-    return { foods: getDemoFoods(), duration: Date.now() - startTime };
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY is not set. Please add it to your Render environment variables.');
   }
 
   try {
-    console.log('🤖 Sending image to LogMeal API (Step 1: Segmentation)...');
-    const formData = new FormData();
-    formData.append('image', fs.createReadStream(imagePath));
+    console.log('🤖 Sending image to Gemini Vision API...');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const segResponse = await axios.post('https://api.logmeal.com/v2/image/segmentation/complete', formData, {
-      headers: {
-        'Authorization': `Bearer ${LOGMEAL_API_TOKEN}`,
-        ...formData.getHeaders(),
-      }
-    });
+    // Determine mime type based on extension
+    let mimeType = 'image/jpeg';
+    if (imagePath.toLowerCase().endsWith('.png')) mimeType = 'image/png';
+    if (imagePath.toLowerCase().endsWith('.webp')) mimeType = 'image/webp';
 
-    console.log('📊 LogMeal segmentation response received');
+    const imagePart = {
+      inlineData: {
+        data: Buffer.from(fs.readFileSync(imagePath)).toString("base64"),
+        mimeType: mimeType
+      },
+    };
 
-    // 1. NON-FOOD FILTERING
-    const validSegments = [];
-    if (segResponse.data && segResponse.data.segmentation_results) {
-      for (const segment of segResponse.data.segmentation_results) {
-        // Reject explicitly non-food items
-        if (segment.foodFamily === 'non_food' || segment.foodFamily === 'non-food') continue;
-        
-        if (segment.recognition_results && segment.recognition_results.length > 0) {
-          const bestMatch = segment.recognition_results[0];
-          // LogMeal can give low confidence to random noise. Only accept confidence > 0.3
-          if (bestMatch.prob > 0.3) {
-             validSegments.push({ segment, bestMatch });
-          }
-        }
-      }
-    }
+    const prompt = `You are an expert AI Nutritionist. Analyze this image of a meal.
+Identify all the food items present. 
+If there is NO food in the image, you MUST return exactly the word: NO_FOOD_DETECTED.
+Otherwise, return a JSON array of the detected foods. DO NOT wrap it in markdown block, just raw JSON string.
+Format for each item in the array:
+{
+  "name": "Food Name (e.g. Rice, Momos, English Breakfast)",
+  "portion_g": estimated portion size in grams (e.g. 150),
+  "category": "protein" | "carb" | "vegetable" | "fruit" | "dairy" | "fat" | "beverage" | "dessert" | "other",
+  "logmealNutrition": {
+    "calories": estimated kcal,
+    "protein": estimated protein in g,
+    "carbs": estimated carbs in g,
+    "fat": estimated fat in g,
+    "fiber": estimated fiber in g,
+    "sugar": estimated sugar in g,
+    "sodium": estimated sodium in mg
+  }
+}
+Only return the JSON array, nothing else.`;
 
-    if (validSegments.length === 0) {
+    const result = await model.generateContent([prompt, imagePart]);
+    const text = result.response.text().trim();
+
+    if (text.includes('NO_FOOD_DETECTED')) {
       throw new Error('No valid food detected in the image. Please try a clearer photo of a meal.');
     }
 
-    const imageId = segResponse.data.imageId;
+    let jsonStr = text;
+    if (jsonStr.startsWith('\`\`\`json')) jsonStr = jsonStr.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+    if (jsonStr.startsWith('\`\`\`')) jsonStr = jsonStr.replace(/\`\`\`/g, '').trim();
 
-    // 2. DISH CONFIRMATION (Required for Nutrition API in LogMeal)
-    // We auto-confirm the AI's top prediction to make it seamless for the user
-    console.log('✅ Auto-confirming detected dishes with LogMeal...');
-    try {
-      // For each segment, confirm the highest probability dish
-      // LogMeal confirmation endpoint expects just the imageId, it will auto-confirm or we can just skip it if it fails.
-      // Wait, actually, let's just attempt to fetch nutrition. LogMeal often auto-resolves if confirmation is skipped.
-    } catch(e) {}
-
-    // 3. FETCH REAL NUTRITIONAL DATA
-    console.log('🍏 Fetching REAL nutritional data from LogMeal...');
-    let nutritionData = null;
-    try {
-       const nutRes = await axios.post('https://api.logmeal.com/v2/nutrition/recipe/nutritionalInfo', 
-          { imageId: imageId },
-          {
-            headers: {
-               'Authorization': `Bearer ${LOGMEAL_API_TOKEN}`,
-               'Content-Type': 'application/json'
-            }
-          }
-       );
-       nutritionData = nutRes.data?.nutritional_info;
-       console.log('💪 LogMeal Nutrition fetched successfully!');
-    } catch (e) {
-       console.error('⚠️ Could not fetch LogMeal nutrition, will fallback to local DB:', e.response?.data || e.message);
-    }
-
-    // LogMeal returns the TOTAL nutrition for the entire image. 
-    // To prevent doubling the calories, we combine all detected segments into one "Meal" item.
+    const foods = JSON.parse(jsonStr);
     
-    let mappedNutrition = null;
-    if (nutritionData) {
-       mappedNutrition = {
-          calories: nutritionData.calories || nutritionData.energy || 0,
-          protein: nutritionData.macronutrients?.proteins || nutritionData.totalNutrients?.PROCNT?.quantity || 0,
-          carbs: nutritionData.macronutrients?.carbohydrates || nutritionData.totalNutrients?.CHOCDF?.quantity || 0,
-          fat: nutritionData.macronutrients?.fat || nutritionData.totalNutrients?.FAT?.quantity || 0,
-          fiber: nutritionData.macronutrients?.fiber || nutritionData.totalNutrients?.FIBTG?.quantity || 0,
-          sugar: nutritionData.macronutrients?.sugar || nutritionData.totalNutrients?.SUGAR?.quantity || 0,
-          sodium: nutritionData.macronutrients?.sodium || nutritionData.totalNutrients?.NA?.quantity || 0,
-       };
-    }
+    // Add confidence score to match original API
+    foods.forEach(f => f.confidence = 0.95);
 
-    const combinedNames = validSegments.map(s => s.bestMatch.name).join(' and ');
-    const avgConfidence = validSegments.reduce((sum, s) => sum + s.bestMatch.prob, 0) / validSegments.length;
-
-    const foods = [{
-      name: combinedNames,
-      portion_g: 150 * validSegments.length,
-      confidence: avgConfidence,
-      category: 'other',
-      description: mappedNutrition ? `Real macros from LogMeal AI` : `Detected by LogMeal AI`,
-      logmealNutrition: mappedNutrition
-    }];
+    console.log('✅ Gemini Vision successfully analyzed the food!');
 
     return {
       foods: foods,
       duration: Date.now() - startTime,
     };
-
   } catch (error) {
-    const errorDetails = error.response?.data ? JSON.stringify(error.response.data) : error.message;
-    console.error('❌ LogMeal API error:', errorDetails);
+    console.error('❌ Gemini Vision API error:', error.message);
     
     if (error.message.includes('No valid food detected')) {
         throw error;
     }
     
-    if (error.response?.status === 401 || error.response?.status === 403) {
-        throw new Error(`LogMeal Unauthorized: Please use the 'APIUserToken'.`);
+    if (error.message.includes('API key not valid')) {
+        throw new Error('Your Gemini API Key is invalid. Please check Render environment variables.');
     }
     
-    throw new Error(`LogMeal API Error: ${errorDetails}`);
+    throw new Error(`AI Scan Failed: ${error.message}`);
   }
 }
 
