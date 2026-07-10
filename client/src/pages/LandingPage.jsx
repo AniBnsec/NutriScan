@@ -54,13 +54,13 @@ export default function LandingPage() {
     <div className="landing">
       {/* Navbar */}
       <nav className="landing-nav">
-        <div className="logo-mark" style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: '1.25rem', whiteSpace: 'nowrap' }}>
-          <img src="/LOGO.png" alt="Logo" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'cover' }} />
-          <span style={{ color: '#fff' }} className="hide-on-mobile-xs">NutriScan</span>
+        <div className="logo-mark" style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 'clamp(1rem, 4vw, 1.25rem)', whiteSpace: 'nowrap' }}>
+          <img src="/LOGO.png" alt="Logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }} />
+          <span style={{ color: '#fff' }}>NutriScan</span>
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-          <Link to="/login" className="btn btn-ghost btn-sm">{t('landing.signIn')}</Link>
-          <Link to="/register" className="btn btn-primary btn-sm">{t('landing.getStarted')}</Link>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end', flex: 1, minWidth: 160 }}>
+          <Link to="/login" className="btn btn-ghost btn-sm" style={{ padding: '6px 10px', fontSize: '0.8rem' }}>{t('landing.signIn')}</Link>
+          <Link to="/register" className="btn btn-primary btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>{t('landing.getStarted')}</Link>
         </div>
       </nav>
 
