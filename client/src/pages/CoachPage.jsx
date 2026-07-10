@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../api/client';
 import useStore from '../store/useStore';

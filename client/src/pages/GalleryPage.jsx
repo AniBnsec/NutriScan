@@ -19,7 +19,6 @@ export default function GalleryPage() {
   const filtered = filter === 'all' ? meals : meals.filter(m => m.mealType === filter);
 
   const MEAL_TYPES = ['all', 'breakfast', 'lunch', 'snack', 'dinner'];
-  const MEAL_EMOJIS = { breakfast: '🌅', lunch: '☀️', snack: '🍎', dinner: '🌙' };
 
   return (
     <div className="page-inner">
