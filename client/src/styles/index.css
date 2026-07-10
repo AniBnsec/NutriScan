@@ -1028,9 +1028,12 @@ input[type="range"]:disabled { opacity: 0.4; cursor: not-allowed; }
     padding: 16px;
   }
 
-  /* Make all grids single column on mobile */
-  .grid-2, .grid-3, .grid-4, .grid-auto, .features-grid {
+  /* Responsive grids on mobile */
+  .grid-2, .grid-3, .grid-auto, .features-grid {
     grid-template-columns: 1fr !important;
+  }
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 
   /* Fix page headers on mobile */
