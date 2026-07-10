@@ -168,7 +168,7 @@ export default function HistoryPage() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div className="meal-card-img">
+                  <div className="meal-card-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', background: 'var(--surface-light)', borderRadius: 10, width: 60, height: 60 }}>
                     {MEAL_EMOJIS[meal.mealType] || '🍽️'}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
