@@ -103,31 +103,30 @@ export default function ExercisePage() {
               ))}
             </div>
             {/* Search */}
-            <div style={{ position: 'relative', marginBottom: 12 }}>
-              <input className="input" placeholder="🔍 Search exercise..." value={query} onChange={e => { setQuery(e.target.value); setShowDropdown(true); }} onFocus={() => setShowDropdown(true)} onBlur={() => setTimeout(() => setShowDropdown(false), 150)} />
-              <AnimatePresence>
-                {showDropdown && filtered.length > 0 && (
-                  <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: 'rgba(15,17,26,0.98)', border: '1px solid var(--border)', borderRadius: 12, zIndex: 100, overflow: 'hidden', backdropFilter: 'blur(20px)', maxHeight: 280, overflowY: 'auto' }}>
-                    {filtered.map(ex => (
-                      <div key={ex.name} onMouseDown={() => { setSelected(ex); setQuery(ex.name); setShowDropdown(false); }}
-                        style={{ padding: '10px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                        <span>{CATEGORY_ICONS[ex.category]}</span>
-                        <div>
-                          <div style={{ fontSize: '0.88rem', fontWeight: 500, textTransform: 'capitalize' }}>{ex.name}</div>
-                          <div style={{ fontSize: '0.72rem', color: 'var(--text-faint)' }}>MET {ex.met} · {ex.category}</div>
-                        </div>
-                        <div style={{ marginLeft: 'auto', fontSize: '0.75rem', color: CATEGORY_COLORS[ex.category] }}>
-                          ~{Math.round(ex.met * (user?.weight || 70) * (duration / 60))} kcal
-                        </div>
-                      </div>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div style={{ marginBottom: 16 }}>
+              <input className="input" placeholder="🔍 Search exercise..." value={query} onChange={e => setQuery(e.target.value)} />
             </div>
+            
+            {/* Always visible list */}
+            {filtered.length > 0 && (
+              <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden', maxHeight: 240, overflowY: 'auto', marginBottom: 16 }}>
+                {filtered.map(ex => (
+                  <div key={ex.name} onClick={() => { setSelected(ex); setQuery(''); }}
+                    style={{ padding: '10px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid rgba(255,255,255,0.03)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <span style={{ fontSize: '1.2rem' }}>{CATEGORY_ICONS[ex.category]}</span>
+                    <div>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 600, textTransform: 'capitalize' }}>{ex.name}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-faint)' }}>MET {ex.met} · {ex.category}</div>
+                    </div>
+                    <div style={{ marginLeft: 'auto', fontSize: '0.75rem', color: CATEGORY_COLORS[ex.category], fontWeight: 500 }}>
+                      ~{Math.round(ex.met * (user?.weight || 70) * (duration / 60))} kcal
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {selected && (
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="glass" style={{ padding: 16, marginBottom: 12 }}>
