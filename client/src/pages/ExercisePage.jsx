@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../api/client';
 import useStore from '../store/useStore';
@@ -14,7 +14,6 @@ export default function ExercisePage() {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(null);
   const [duration, setDuration] = useState(30);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
