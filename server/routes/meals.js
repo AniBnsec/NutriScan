@@ -5,7 +5,7 @@ const Meal = require('../models/Meal');
 const DailyLog = require('../models/DailyLog');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
-const { analyzeFoodImage } = require('../services/geminiService');
+const { analyzeFoodImage } = require('../services/logmealService');
 const { enrichFoodsWithNutrition } = require('../services/nutritionService');
 
 function getTodayDate() {
