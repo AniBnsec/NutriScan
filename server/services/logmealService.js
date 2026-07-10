@@ -32,12 +32,12 @@ async function analyzeFoodImage(imagePath) {
     if (response.data && response.data.segmentation_results) {
       for (const segment of response.data.segmentation_results) {
         if (segment.recognition_results && segment.recognition_results.length > 0) {
-          const bestMatch = segment.recognition_results[0]; // Take highest probability
+          const bestMatch = segment.recognition_results[0];
           foods.push({
             name: bestMatch.name,
-            portion_g: 150, // Default portion size, as standard segmentation doesn't provide quantity
+            portion_g: 150,
             confidence: bestMatch.prob,
-            category: 'other', // Default category
+            category: 'other',
             description: `Detected by LogMeal AI`
           });
         }
@@ -45,24 +45,21 @@ async function analyzeFoodImage(imagePath) {
     }
 
     return {
-      foods: foods.length > 0 ? foods : getDemoFoods(),
+      foods: foods,
       duration: Date.now() - startTime,
     };
 
   } catch (error) {
-    console.error('❌ LogMeal API error:', error.response?.data || error.message);
-    return { foods: getDemoFoods(), duration: Date.now() - startTime };
+    const errorDetails = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+    console.error('❌ LogMeal API error:', errorDetails);
+    
+    // Check for specific token errors to give a helpful message
+    if (error.response?.status === 401 || error.response?.status === 403) {
+        throw new Error(`LogMeal Unauthorized: Please make sure you are using the 'APIUserToken' from your LogMeal dashboard, NOT the 'APICompanyToken'. (Raw error: ${errorDetails})`);
+    }
+    
+    throw new Error(`LogMeal API Error: ${errorDetails}`);
   }
-}
-
-function getDemoFoods() {
-  const demos = [
-    [
-      { name: 'basmati rice', portion_g: 150, confidence: 0.94, category: 'carb', description: 'LogMeal Fallback: Rice' },
-      { name: 'dal tadka', portion_g: 180, confidence: 0.91, category: 'protein', description: 'LogMeal Fallback: Lentil curry' }
-    ]
-  ];
-  return demos[0];
 }
 
 module.exports = { analyzeFoodImage };
