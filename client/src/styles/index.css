@@ -525,7 +525,7 @@ select option {
 .empty-state p { color: var(--text-muted); font-size: 0.9rem; }
 
 /* ── Responsive ── */
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
   :root { --sidebar-w: 0px; }
   .app-sidebar { transform: translateX(-100%); }
   .app-sidebar.open { transform: translateX(0); --sidebar-w: 240px; }
@@ -1011,7 +1011,7 @@ input[type="range"]:disabled { opacity: 0.4; cursor: not-allowed; }
   display: none;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
   /* Hide desktop sidebar */
   .app-sidebar {
     display: none !important;
@@ -1020,7 +1020,7 @@ input[type="range"]:disabled { opacity: 0.4; cursor: not-allowed; }
   /* Reset content margin to take full width */
   .app-content {
     margin-left: 0 !important;
-    padding-bottom: 80px; /* Space for bottom nav */
+    padding-bottom: 100px !important; /* Space for bottom nav */
   }
   
   /* Tighter padding on mobile */

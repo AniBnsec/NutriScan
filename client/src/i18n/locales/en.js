@@ -55,6 +55,7 @@ const en = {
     settings: 'Settings',
     bmi: 'BMI',
     goal: 'Goal',
+    menu: 'Menu',
   },
 
   // ── Landing ────────────────────────────────────
