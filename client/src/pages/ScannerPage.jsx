@@ -74,8 +74,15 @@ export default function ScannerPage() {
 
   const handleScan = async () => {
     if (!file) return toast.error('Please upload a food photo first');
-    try { await scanFood(file); toast.success('Food recognized! 🎉'); }
-    catch { toast.error('Scan failed. Please try again.'); }
+    try { 
+      await scanFood(file); 
+      toast.success('Food recognized! 🎉'); 
+    }
+    catch (err) { 
+      console.error(err);
+      const msg = err.response?.data?.message || err.message || 'Scan failed';
+      toast.error(`Scan failed: ${msg}`); 
+    }
   };
 
   const handleSave = async () => {

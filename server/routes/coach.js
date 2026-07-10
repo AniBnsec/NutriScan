@@ -1,17 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 const DailyLog = require('../models/DailyLog');
-
-// Gemini removed per user request
-let genAI = null;
 
 // POST /api/coach/chat
 router.post('/chat', auth, async (req, res) => {
   try {
     const { message, history = [] } = req.body;
     if (!message) return res.status(400).json({ message: 'Message required' });
+
+    // Validate that the user has the token configured
+    if (!process.env.LOGMEAL_API_TOKEN) {
+      return res.status(500).json({ reply: 'LOGMEAL_API_TOKEN is missing in environment variables.' });
+    }
 
     // Build user nutrition context
     const today = new Date().toISOString().split('T')[0];
