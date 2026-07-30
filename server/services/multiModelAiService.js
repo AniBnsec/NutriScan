@@ -93,6 +93,9 @@ async function analyzeFoodImageMultiModel(imagePath) {
         return { ...result, provider: 'LogMeal' };
       }
     } catch (err) {
+      if (err.message.includes('No valid food detected')) {
+        throw err;
+      }
       console.warn('⚠️ LogMeal API failed, proceeding to Gemini Vision fallback:', err.message);
     }
   }

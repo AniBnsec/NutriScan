@@ -73,8 +73,10 @@ async function analyzeFoodImage(imagePath) {
     // Parse segmentation results or direct recognition results
     if (data.segmentation_results) {
         for (const item of data.segmentation_results) {
+           if (item.foodFamily === 'non_food' || item.foodFamily === 'non-food') continue;
            if (item.recognition_results && item.recognition_results.length > 0) {
                const topResult = item.recognition_results[0];
+               if (topResult.prob && topResult.prob < 0.25) continue;
                foods.push({
                    name: topResult.name,
                    portion_g: 150,
@@ -84,42 +86,54 @@ async function analyzeFoodImage(imagePath) {
            }
         }
     } else if (data.recognition_results && data.recognition_results.length > 0) {
-        const topResult = data.recognition_results[0];
-        foods.push({
-           name: topResult.name,
-           portion_g: 150,
-           category: 'other', 
-           confidence: topResult.prob || 0.95
-        });
+        for (const topResult of data.recognition_results) {
+           if (topResult.prob && topResult.prob < 0.25) continue;
+           foods.push({
+              name: topResult.name,
+              portion_g: 150,
+              category: 'other', 
+              confidence: topResult.prob || 0.95
+           });
+           break; // take top result
+        }
     }
 
     if (foods.length === 0) {
-      throw new Error('No valid food detected in the image.');
+      throw new Error('No valid food detected in the image. Please upload a clear photo of food.');
     }
 
     // Try to get nutritional info for the image ID
     if (data.imageId) {
        try {
-           const nutReq = await axios.post('https://api.logmeal.com/v2/recipe/nutritionalInfo', {
-               imageId: data.imageId
-           }, { headers: { 'Authorization': `Bearer ${token.trim()}` } });
+           let nutReq;
+           try {
+              nutReq = await axios.post('https://api.logmeal.com/v2/nutrition/recipe/nutritionalInfo', {
+                  imageId: data.imageId
+              }, { headers: { 'Authorization': `Bearer ${token.trim()}`, 'Content-Type': 'application/json' } });
+           } catch(e) {
+              nutReq = await axios.post('https://api.logmeal.com/v2/recipe/nutritionalInfo', {
+                  imageId: data.imageId
+              }, { headers: { 'Authorization': `Bearer ${token.trim()}`, 'Content-Type': 'application/json' } });
+           }
            
-           if (nutReq.data && nutReq.data.nutritional_info) {
-               const nut = nutReq.data.nutritional_info;
+           const nutData = nutReq.data?.nutritional_info || nutReq.data;
+           if (nutData) {
+               const nut = nutData;
+               const totalNut = nut.totalNutrients || nut.macronutrients || {};
                if (foods.length > 0) {
                   foods[0].logmealNutrition = {
-                     calories: nut.calories || 0,
-                     protein: nut.totalNutrients?.PROCNT?.quantity || 0,
-                     carbs: nut.totalNutrients?.CHOCDF?.quantity || 0,
-                     fat: nut.totalNutrients?.FAT?.quantity || 0,
-                     fiber: nut.totalNutrients?.FIBTG?.quantity || 0,
-                     sugar: nut.totalNutrients?.SUGAR?.quantity || 0,
-                     sodium: nut.totalNutrients?.NA?.quantity || 0
+                     calories: nut.calories || nut.energy || totalNut.ENERC_KCAL?.quantity || 0,
+                     protein: totalNut.proteins || totalNut.PROCNT?.quantity || 0,
+                     carbs: totalNut.carbohydrates || totalNut.CHOCDF?.quantity || 0,
+                     fat: totalNut.fat || totalNut.FAT?.quantity || 0,
+                     fiber: totalNut.fiber || totalNut.FIBTG?.quantity || 0,
+                     sugar: totalNut.sugar || totalNut.SUGAR?.quantity || 0,
+                     sodium: totalNut.sodium || totalNut.NA?.quantity || 0
                   };
                }
            }
        } catch (nutErr) {
-           console.log('LogMeal nutrition info failed, falling back to local enrichment:', nutErr.message);
+           console.log('LogMeal nutrition info fetch failed, falling back to local enrichment:', nutErr.message);
        }
     }
 

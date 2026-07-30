@@ -68,7 +68,8 @@ router.post('/scan', auth, upload.single('image'), async (req, res) => {
     res.json({ foods: enrichedFoods, totals, duration, imagePath: `/uploads/${path.basename(imagePath)}` });
   } catch (e) {
     console.error('Scan error:', e);
-    res.status(500).json({ message: e.message });
+    const status = e.message.includes('No valid food') ? 400 : 500;
+    res.status(status).json({ message: e.message });
   }
 });
 
