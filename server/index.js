@@ -20,6 +20,18 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Check DB connection middleware
+const mongoose = require('mongoose');
+app.use('/api', (req, res, next) => {
+  if (req.path === '/health') return next();
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      message: 'Database connection in progress or failed authentication. Please verify MONGODB_URI password & Atlas IP Whitelist (0.0.0.0/0).'
+    });
+  }
+  next();
+});
+
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/meals', require('./routes/meals'));
