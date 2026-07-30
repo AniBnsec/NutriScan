@@ -29,8 +29,9 @@ function getDemoFoods() {
 async function analyzeFoodImage(imagePath) {
   const startTime = Date.now();
   
-  if (!process.env.LOGMEAL_API_TOKEN) {
-    console.warn('⚠️ LOGMEAL_API_TOKEN is not set. Using demo fallback.');
+  const token = process.env.LOGMEAL_API_TOKEN || process.env.LOGMEAL_COMPANY_TOKEN;
+  if (!token) {
+    console.warn('⚠️ LogMeal API token is not set. Using demo fallback.');
     return { foods: getDemoFoods(), duration: Date.now() - startTime };
   }
 
@@ -42,7 +43,7 @@ async function analyzeFoodImage(imagePath) {
     formData.append('image', fs.createReadStream(imagePath), { filename: path.basename(imagePath) });
 
     const headers = {
-      'Authorization': `Bearer ${process.env.LOGMEAL_API_TOKEN.trim()}`,
+      'Authorization': `Bearer ${token.trim()}`,
       ...formData.getHeaders()
     };
 
@@ -60,7 +61,7 @@ async function analyzeFoodImage(imagePath) {
         
         segmentationResponse = await axios.post('https://api.logmeal.com/v2/image/recognition/dish', fallbackFormData, { 
             headers: {
-                'Authorization': `Bearer ${process.env.LOGMEAL_API_TOKEN.trim()}`,
+                'Authorization': `Bearer ${token.trim()}`,
                 ...fallbackFormData.getHeaders()
             }
         });
@@ -101,7 +102,7 @@ async function analyzeFoodImage(imagePath) {
        try {
            const nutReq = await axios.post('https://api.logmeal.com/v2/recipe/nutritionalInfo', {
                imageId: data.imageId
-           }, { headers: { 'Authorization': `Bearer ${process.env.LOGMEAL_API_TOKEN.trim()}` } });
+           }, { headers: { 'Authorization': `Bearer ${token.trim()}` } });
            
            if (nutReq.data && nutReq.data.nutritional_info) {
                const nut = nutReq.data.nutritional_info;

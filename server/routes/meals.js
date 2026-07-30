@@ -5,7 +5,7 @@ const Meal = require('../models/Meal');
 const DailyLog = require('../models/DailyLog');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
-const { analyzeFoodImage } = require('../services/logmealService');
+const { analyzeFoodImageMultiModel } = require('../services/multiModelAiService');
 const { enrichFoodsWithNutrition } = require('../services/nutritionService');
 
 function getTodayDate() {
@@ -37,21 +37,20 @@ router.post('/scan', auth, upload.single('image'), async (req, res) => {
     if (!req.file) return res.status(400).json({ message: 'No image uploaded' });
 
     const imagePath = req.file.path;
-    const { foods: rawFoods, duration } = await analyzeFoodImage(imagePath);
+    const { foods: rawFoods, duration, provider } = await analyzeFoodImageMultiModel(imagePath);
     
     // Enrich with local nutrition ONLY IF LogMeal did not already provide it
     const enrichedFoods = rawFoods.map(food => {
        if (food.logmealNutrition && food.logmealNutrition.calories > 0) {
-          // It has real macros from LogMeal!
           return {
              ...food,
              nutrition: food.logmealNutrition
           };
        } else {
-          // Fallback to local enrichment
           return enrichFoodsWithNutrition([food])[0];
        }
     });
+
 
     // Build totals
     const totals = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sugar: 0, sodium: 0, vitaminA: 0, vitaminC: 0, vitaminD: 0, vitaminB12: 0, iron: 0, calcium: 0, potassium: 0 };

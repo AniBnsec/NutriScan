@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
-const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET || 'nutriscan_secret_key_2024', { expiresIn: '30d' });
 
 const formatUser = (u) => ({
   id: u._id, name: u.name, email: u.email,

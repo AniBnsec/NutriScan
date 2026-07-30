@@ -2,17 +2,13 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const DailyLog = require('../models/DailyLog');
+const { chatWithCoachMultiModel } = require('../services/multiModelAiService');
 
 // POST /api/coach/chat
 router.post('/chat', auth, async (req, res) => {
   try {
     const { message, history = [] } = req.body;
     if (!message) return res.status(400).json({ message: 'Message required' });
-
-    // Validate that the user has the token configured
-    if (!process.env.LOGMEAL_API_TOKEN) {
-      return res.status(500).json({ reply: 'LOGMEAL_API_TOKEN is missing in environment variables.' });
-    }
 
     // Build user nutrition context
     const today = new Date().toISOString().split('T')[0];
@@ -57,51 +53,22 @@ INSTRUCTIONS:
 - Use emojis sparingly for friendliness
 - Give specific, actionable advice based on the user's ACTUAL data above
 - If asked about today's data, refer to the real numbers above
-- Address the user by first name occasionally
-- If the API key is limited, still give helpful general advice`;
+- Address the user by first name occasionally`;
 
-    if (!genAI) {
-      // Fallback responses
-      const fallbacks = {
-        protein: `Great question, ${u.name.split(' ')[0]}! 💪 You need ${u.proteinGoal || 150}g of protein daily. Good sources include chicken breast (31g/100g), eggs (13g each), paneer (18g/100g), and dal (9g/100g). Try adding a protein source to every meal.`,
-        calorie: `Today you've had ${todayLog?.totals?.calories || 0} of your ${u.calorieGoal || 2000} kcal goal. ${(todayLog?.totals?.calories || 0) < (u.calorieGoal || 2000) ? 'You still have room for a nutritious meal!' : 'Great job hitting your goal!'}`,
-        default: `Based on your profile, I recommend focusing on hitting your ${u.calorieGoal || 2000} kcal goal with balanced macros. You're doing ${(todayLog?.mealCount || 0) > 0 ? 'great' : 'okay'} today with ${todayLog?.mealCount || 0} meals logged. Keep it up! 🥗`,
-      };
-      const lower = message.toLowerCase();
-      let reply = fallbacks.default;
-      if (lower.includes('protein')) reply = fallbacks.protein;
-      else if (lower.includes('calorie') || lower.includes('goal')) reply = fallbacks.calorie;
-      return res.json({ reply, context: { calories: todayLog?.totals?.calories || 0 } });
-    }
-
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-    // Build chat history for context
-    const chatHistory = history.slice(-6).map(h => ({
-      role: h.role,
-      parts: [{ text: h.content }]
-    }));
-
-    const chat = model.startChat({
-      history: [
-        { role: 'user', parts: [{ text: systemPrompt }] },
-        { role: 'model', parts: [{ text: `Hello ${u.name.split(' ')[0]}! I'm NutriCoach, your personal AI nutrition advisor. I can see your nutrition data and I'm ready to help you reach your health goals. What would you like to know?` }] },
-        ...chatHistory,
-      ],
+    const { reply, provider } = await chatWithCoachMultiModel(message, history, {
+      systemPrompt,
+      userName: u.name.split(' ')[0],
+      userGoal: u.calorieGoal || 2000,
+      todayCalories: todayLog?.totals?.calories || 0,
+      mealCount: todayLog?.mealCount || 0
     });
 
-    const result = await chat.sendMessage(message);
-    const reply = result.response.text();
-    res.json({ reply, context: { calories: todayLog?.totals?.calories || 0, mealCount: todayLog?.mealCount || 0 } });
+    res.json({ reply, provider, context: { calories: todayLog?.totals?.calories || 0, mealCount: todayLog?.mealCount || 0 } });
   } catch (e) {
     console.error('Coach error:', e.message);
-    const isApiKeyError = e.message.includes('API key not valid') || e.message.includes('403');
-    const replyMsg = isApiKeyError 
-      ? '⚠️ Your Gemini API key is invalid! Please check the GEMINI_API_KEY environment variable in Render.'
-      : `I'm having trouble connecting right now (Error: ${e.message}). Keep tracking your nutrition! 🥗`;
-    
-    res.json({ reply: replyMsg });
+    res.json({ reply: `I'm having trouble connecting right now (Error: ${e.message}). Keep tracking your nutrition! 🥗` });
   }
 });
 
 module.exports = router;
+
