@@ -39,15 +39,19 @@ router.post('/scan', auth, upload.single('image'), async (req, res) => {
     const imagePath = req.file.path;
     const { foods: rawFoods, duration, provider } = await analyzeFoodImageMultiModel(imagePath);
     
-    // Enrich with local nutrition ONLY IF LogMeal did not already provide it
+    // Enrich with full macro & micronutrient details for complete nutritional breakdown
     const enrichedFoods = rawFoods.map(food => {
+       const baseEnriched = enrichFoodsWithNutrition([food])[0];
        if (food.logmealNutrition && food.logmealNutrition.calories > 0) {
           return {
              ...food,
-             nutrition: food.logmealNutrition
+             nutrition: {
+               ...baseEnriched.nutrition,
+               ...food.logmealNutrition
+             }
           };
        } else {
-          return enrichFoodsWithNutrition([food])[0];
+          return baseEnriched;
        }
     });
 

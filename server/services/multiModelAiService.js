@@ -4,29 +4,29 @@ const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const logmealService = require('./logmealService');
 
-const PROMPT = `You are an expert nutritionist and food recognition AI with deep knowledge of both Indian and international cuisines.
+const PROMPT = `You are a world-class nutritionist and master AI food recognition system with deep expertise in Indian and international cuisines.
 
-Analyze this food image and identify ALL visible food items.
+Examine this food image with high precision and identify ALL visible food and beverage items.
 
 For each food item:
-1. Name it specifically (e.g., "basmati rice" not just "rice", "grilled chicken breast" not just "chicken")
-2. Estimate portion size in grams (for liquids/beverages use ml as grams equivalent)
-3. Confidence score from 0 to 1
-4. Food category (protein|carb|vegetable|fruit|dairy|fat|beverage|dessert|other)
-5. Brief visual description
+1. Provide the exact, specific name of the dish or item (e.g., "Paneer Butter Masala", "Chicken Biryani", "Masala Dosa", "Dal Tadka", "Basmati Rice", "Whole Wheat Roti", "Grilled Chicken Breast").
+2. Estimate the realistic portion size in grams (or ml for liquids/drinks).
+3. Assign a confidence score between 0.85 and 1.00.
+4. Categorize as: protein | carb | vegetable | fruit | dairy | fat | beverage | dessert | other.
+5. Provide a short visual description.
 
-IMPORTANT: Return ONLY a valid JSON array without markdown formatting:
+Return ONLY a raw valid JSON array without any markdown formatting or commentary:
 [
   {
-    "name": "specific food name",
-    "portion_g": 150,
+    "name": "Paneer Butter Masala",
+    "portion_g": 200,
     "confidence": 0.95,
     "category": "protein",
-    "description": "brief description"
+    "description": "Rich creamy tomato gravy with cottage cheese cubes"
   }
 ]
 
-If no food is visible, return: []`;
+If no food is visible in the image, return: []`;
 
 function getMimeType(filePath) {
   const map = {
@@ -73,7 +73,7 @@ function getDemoFoods() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 1. VISION FOOD RECOGNITION PIPELINE (Groq -> Gemini -> OpenAI -> LogMeal -> Demo)
+// 1. VISION FOOD RECOGNITION PIPELINE (Gemini -> Groq -> OpenAI -> LogMeal -> Demo)
 // ─────────────────────────────────────────────────────────────
 
 async function analyzeFoodImageMultiModel(imagePath) {
@@ -83,10 +83,45 @@ async function analyzeFoodImageMultiModel(imagePath) {
   const mimeType = getMimeType(imagePath);
   const dataUrl = `data:${mimeType};base64,${base64Image}`;
 
-  // Priority 1: Groq Vision AI
+  // Priority 1: LogMeal API
+  if (process.env.LOGMEAL_API_TOKEN || process.env.LOGMEAL_COMPANY_TOKEN) {
+    try {
+      console.log('🤖 [1/5] Trying LogMeal API...');
+      const result = await logmealService.analyzeFoodImage(imagePath);
+      if (result?.foods?.length > 0) {
+        console.log('✅ Recognized food via LogMeal API!');
+        return { ...result, provider: 'LogMeal' };
+      }
+    } catch (err) {
+      console.warn('⚠️ LogMeal API failed, proceeding to Gemini Vision fallback:', err.message);
+    }
+  }
+
+  // Priority 2: Gemini Vision AI (Highest Accuracy for Food & Indian Dishes)
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      console.log('🤖 [2/5] Trying Gemini Vision API (gemini-1.5-flash)...');
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const result = await model.generateContent([
+        PROMPT,
+        { inlineData: { data: base64Image, mimeType } }
+      ]);
+      const text = result.response.text();
+      const foods = parseJsonArray(text);
+      if (foods) {
+        console.log('✅ Recognized food via Gemini Vision AI!');
+        return { foods, duration: Date.now() - startTime, provider: 'Gemini (gemini-1.5-flash)' };
+      }
+    } catch (err) {
+      console.warn('⚠️ Gemini Vision failed:', err.message);
+    }
+  }
+
+  // Priority 3: Groq Vision AI
   if (process.env.GROQ_API_KEY) {
     try {
-      console.log('🤖 [1/5] Trying Groq Vision API...');
+      console.log('🤖 [3/5] Trying Groq Vision API...');
       const response = await axios.post(
         'https://api.groq.com/openai/v1/chat/completions',
         {
@@ -122,31 +157,10 @@ async function analyzeFoodImageMultiModel(imagePath) {
     }
   }
 
-  // Priority 2: Gemini Vision AI
-  if (process.env.GEMINI_API_KEY) {
-    try {
-      console.log('🤖 [2/5] Trying Gemini Vision API...');
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const result = await model.generateContent([
-        PROMPT,
-        { inlineData: { data: base64Image, mimeType } }
-      ]);
-      const text = result.response.text();
-      const foods = parseJsonArray(text);
-      if (foods) {
-        console.log('✅ Recognized food via Gemini Vision AI!');
-        return { foods, duration: Date.now() - startTime, provider: 'Gemini (gemini-1.5-flash)' };
-      }
-    } catch (err) {
-      console.warn('⚠️ Gemini Vision failed:', err.message);
-    }
-  }
-
-  // Priority 3: OpenAI Vision AI
+  // Priority 4: OpenAI Vision AI
   if (process.env.OPENAI_API_KEY) {
     try {
-      console.log('🤖 [3/5] Trying OpenAI Vision API...');
+      console.log('🤖 [4/5] Trying OpenAI Vision API...');
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
@@ -179,20 +193,6 @@ async function analyzeFoodImageMultiModel(imagePath) {
       }
     } catch (err) {
       console.warn('⚠️ OpenAI Vision failed:', err.response?.data?.error?.message || err.message);
-    }
-  }
-
-  // Priority 4: LogMeal Recognition
-  if (process.env.LOGMEAL_API_TOKEN) {
-    try {
-      console.log('🤖 [4/5] Trying LogMeal API...');
-      const result = await logmealService.analyzeFoodImage(imagePath);
-      if (result?.foods?.length > 0) {
-        console.log('✅ Recognized food via LogMeal API!');
-        return { ...result, provider: 'LogMeal' };
-      }
-    } catch (err) {
-      console.warn('⚠️ LogMeal failed:', err.message);
     }
   }
 

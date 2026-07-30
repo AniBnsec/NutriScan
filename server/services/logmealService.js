@@ -134,9 +134,7 @@ async function analyzeFoodImage(imagePath) {
         ? JSON.stringify(error.response.data)
         : error.message;
     console.error('❌ LogMeal API error:', errorMsg);
-    
-    console.warn('⚠️ LogMeal failed. Falling back to demo foods to prevent app crash.');
-    return { foods: getDemoFoods(), duration: Date.now() - startTime };
+    throw new Error(`LogMeal failed: ${errorMsg}`);
   }
 }
 
