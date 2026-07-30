@@ -39,8 +39,10 @@ async function analyzeFoodImage(imagePath) {
     console.log('🤖 Sending image to LogMeal API...');
     
     const formData = new FormData();
-    // In Windows, FormData sometimes fails to extract the filename from the path, so we explicitly provide it
-    formData.append('image', fs.createReadStream(imagePath), { filename: path.basename(imagePath) });
+    formData.append('image', fs.createReadStream(imagePath), { 
+      filename: 'food_scan.jpg',
+      contentType: 'image/jpeg'
+    });
 
     const headers = {
       'Authorization': `Bearer ${token.trim()}`,
@@ -52,12 +54,14 @@ async function analyzeFoodImage(imagePath) {
     try {
         segmentationResponse = await axios.post('https://api.logmeal.com/v2/image/segmentation/complete', formData, { headers });
     } catch (segErr) {
-        // If segmentation fails (e.g. not allowed on free tier), fallback to basic dish recognition
+        // If segmentation fails, fallback to basic dish recognition
         console.warn('Segmentation failed, trying basic recognition...', segErr.response ? segErr.response.data : segErr.message);
         
-        // We have to recreate the read stream because it was consumed
         const fallbackFormData = new FormData();
-        fallbackFormData.append('image', fs.createReadStream(imagePath), { filename: path.basename(imagePath) });
+        fallbackFormData.append('image', fs.createReadStream(imagePath), { 
+          filename: 'food_scan.jpg',
+          contentType: 'image/jpeg'
+        });
         
         segmentationResponse = await axios.post('https://api.logmeal.com/v2/image/recognition/dish', fallbackFormData, { 
             headers: {

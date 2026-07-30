@@ -100,24 +100,27 @@ async function analyzeFoodImageMultiModel(imagePath) {
     }
   }
 
-  // Priority 2: Gemini Vision AI (Highest Accuracy for Food & Indian Dishes)
+  // Priority 2: Gemini Vision AI
   if (process.env.GEMINI_API_KEY) {
-    try {
-      console.log('🤖 [2/5] Trying Gemini Vision API (gemini-1.5-flash)...');
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const result = await model.generateContent([
-        PROMPT,
-        { inlineData: { data: base64Image, mimeType } }
-      ]);
-      const text = result.response.text();
-      const foods = parseJsonArray(text);
-      if (foods) {
-        console.log('✅ Recognized food via Gemini Vision AI!');
-        return { foods, duration: Date.now() - startTime, provider: 'Gemini (gemini-1.5-flash)' };
+    const modelsToTry = ['gemini-1.5-flash-latest', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'];
+    for (const modelName of modelsToTry) {
+      try {
+        console.log(`🤖 [2/5] Trying Gemini Vision API (${modelName})...`);
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent([
+          PROMPT,
+          { inlineData: { data: base64Image, mimeType } }
+        ]);
+        const text = result.response.text();
+        const foods = parseJsonArray(text);
+        if (foods) {
+          console.log(`✅ Recognized food via Gemini Vision AI (${modelName})!`);
+          return { foods, duration: Date.now() - startTime, provider: `Gemini (${modelName})` };
+        }
+      } catch (err) {
+        console.warn(`⚠️ Gemini Vision (${modelName}) failed:`, err.message);
       }
-    } catch (err) {
-      console.warn('⚠️ Gemini Vision failed:', err.message);
     }
   }
 
@@ -199,17 +202,12 @@ async function analyzeFoodImageMultiModel(imagePath) {
     }
   }
 
-  // Priority 5: Smart Demo Fallback
-  console.log('🤖 [5/5] Using Smart Demo Food Recognition Fallback');
-  return {
-    foods: getDemoFoods(),
-    duration: Date.now() - startTime,
-    provider: 'Demo Engine'
-  };
+  // If all vision recognition providers failed
+  throw new Error('Food recognition failed. Please upload a clear, well-lit photo of food.');
 }
 
 // ─────────────────────────────────────────────────────────────
-// 2. COACH CHAT MULTI-MODEL ASSISTANT (Groq -> Gemini -> OpenAI -> Cohere -> Demo)
+// 2. COACH CHAT MULTI-MODEL ASSISTANT (Groq -> Gemini -> OpenAI -> Cohere)
 // ─────────────────────────────────────────────────────────────
 
 async function chatWithCoachMultiModel(message, history = [], userPromptContext = {}) {
@@ -228,7 +226,7 @@ async function chatWithCoachMultiModel(message, history = [], userPromptContext 
   // Priority 1: Groq Chat AI
   if (process.env.GROQ_API_KEY) {
     try {
-      console.log('💬 [1/5] Coach Chat using Groq API...');
+      console.log('💬 [1/4] Coach Chat using Groq API...');
       const response = await axios.post(
         'https://api.groq.com/openai/v1/chat/completions',
         {
@@ -257,7 +255,7 @@ async function chatWithCoachMultiModel(message, history = [], userPromptContext 
   // Priority 2: Gemini Chat AI
   if (process.env.GEMINI_API_KEY) {
     try {
-      console.log('💬 [2/5] Coach Chat using Gemini API...');
+      console.log('💬 [2/4] Coach Chat using Gemini API...');
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY.trim());
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       const chatHistory = history.slice(-6).map(h => ({
@@ -284,7 +282,7 @@ async function chatWithCoachMultiModel(message, history = [], userPromptContext 
   // Priority 3: OpenAI Chat AI
   if (process.env.OPENAI_API_KEY) {
     try {
-      console.log('💬 [3/5] Coach Chat using OpenAI API...');
+      console.log('💬 [3/4] Coach Chat using OpenAI API...');
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
@@ -313,7 +311,7 @@ async function chatWithCoachMultiModel(message, history = [], userPromptContext 
   // Priority 4: Cohere Chat AI
   if (process.env.COHERE_API_KEY) {
     try {
-      console.log('💬 [4/5] Coach Chat using Cohere API...');
+      console.log('💬 [4/4] Coach Chat using Cohere API...');
       const response = await axios.post(
         'https://api.cohere.com/v1/chat',
         {
@@ -342,16 +340,7 @@ async function chatWithCoachMultiModel(message, history = [], userPromptContext 
     }
   }
 
-  // Priority 5: Smart Demo Fallback
-  console.log('💬 [5/5] Using Smart Demo Coach Assistant');
-  const lower = message.toLowerCase();
-  let reply = `Based on your profile, I recommend staying on track with your ${userGoal} kcal daily goal with balanced macros. You have logged ${mealCount} meals today! 🥗`;
-  if (lower.includes('protein')) {
-    reply = `Great question, ${userName}! 💪 Protein is key for muscle recovery. Try sources like chicken breast (31g/100g), eggs, paneer (18g/100g), or lentils with your meals.`;
-  } else if (lower.includes('calorie') || lower.includes('goal')) {
-    reply = `Today you've consumed ${todayCalories} of your ${userGoal} kcal goal. ${todayCalories < userGoal ? 'You still have room for a healthy snack!' : 'Awesome job meeting your target today!'}`;
-  }
-  return { reply, provider: 'Demo Advisor' };
+  throw new Error('AI Coach service temporarily unavailable. Please check your API keys.');
 }
 
 module.exports = {

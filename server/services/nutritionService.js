@@ -147,8 +147,91 @@ function calcMatchScore(query, key) {
   return common.length / Math.max(qWords.length, kWords.length);
 }
 
+const axios = require('axios');
+const usdaCache = new Map();
+
 /**
- * Enrich food items with nutrition data scaled to portion size
+ * Fetch real nutritional macros from USDA FoodData Central API
+ */
+async function fetchUsdaNutrition(foodName) {
+  const query = foodName.toLowerCase().trim();
+  if (usdaCache.has(query)) return usdaCache.get(query);
+
+  const apiKey = process.env.USDA_API_KEY;
+  if (!apiKey) return findNutrition(foodName);
+
+  try {
+    console.log(`🥗 Fetching USDA FoodData Central API for "${query}"...`);
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&query=${encodeURIComponent(query)}&pageSize=1`;
+    const response = await axios.get(url, { timeout: 4000 });
+    const item = response.data?.foods?.[0];
+    if (!item || !item.foodNutrients) {
+      return findNutrition(foodName);
+    }
+
+    const nutMap = {};
+    item.foodNutrients.forEach(n => {
+      const name = (n.nutrientName || '').toLowerCase();
+      const val = n.value || 0;
+      if (name.includes('energy') && (n.unitName === 'KCAL' || !nutMap.calories)) nutMap.calories = val;
+      else if (name.includes('protein')) nutMap.protein = val;
+      else if (name.includes('total lipid') || name.includes('fat')) nutMap.fat = val;
+      else if (name.includes('carbohydrate')) nutMap.carbs = val;
+      else if (name.includes('fiber')) nutMap.fiber = val;
+      else if (name.includes('sugars')) nutMap.sugar = val;
+      else if (name.includes('sodium')) nutMap.sodium = val;
+      else if (name.includes('calcium')) nutMap.calcium = val;
+      else if (name.includes('iron')) nutMap.iron = val;
+      else if (name.includes('potassium')) nutMap.potassium = val;
+      else if (name.includes('vitamin a')) nutMap.vitaminA = val;
+      else if (name.includes('vitamin c')) nutMap.vitaminC = val;
+    });
+
+    const fallback = findNutrition(foodName);
+    const result = {
+      calories: nutMap.calories ?? fallback.calories,
+      protein: nutMap.protein ?? fallback.protein,
+      carbs: nutMap.carbs ?? fallback.carbs,
+      fat: nutMap.fat ?? fallback.fat,
+      fiber: nutMap.fiber ?? fallback.fiber,
+      sugar: nutMap.sugar ?? fallback.sugar,
+      sodium: nutMap.sodium ?? fallback.sodium,
+      vitaminA: nutMap.vitaminA ?? fallback.vitaminA,
+      vitaminC: nutMap.vitaminC ?? fallback.vitaminC,
+      vitaminD: fallback.vitaminD,
+      vitaminB12: fallback.vitaminB12,
+      iron: nutMap.iron ?? fallback.iron,
+      calcium: nutMap.calcium ?? fallback.calcium,
+      potassium: nutMap.potassium ?? fallback.potassium,
+    };
+
+    usdaCache.set(query, result);
+    return result;
+  } catch (err) {
+    console.warn(`⚠️ USDA API failed for "${foodName}":`, err.message);
+    return findNutrition(foodName);
+  }
+}
+
+/**
+ * Enrich food items with real USDA nutrition data scaled to portion size
+ */
+async function enrichFoodsWithNutritionAsync(foods) {
+  return Promise.all(
+    foods.map(async (food) => {
+      const per100g = await fetchUsdaNutrition(food.name);
+      const factor = (food.portion_g || 100) / 100;
+      const nutrition = {};
+      Object.entries(per100g).forEach(([k, v]) => {
+        nutrition[k] = Math.round(v * factor * 10) / 10;
+      });
+      return { ...food, nutrition };
+    })
+  );
+}
+
+/**
+ * Synchronous local fallback
  */
 function enrichFoodsWithNutrition(foods) {
   return foods.map(food => {
@@ -162,4 +245,4 @@ function enrichFoodsWithNutrition(foods) {
   });
 }
 
-module.exports = { enrichFoodsWithNutrition, findNutrition, NUTRITION_DB };
+module.exports = { enrichFoodsWithNutrition, enrichFoodsWithNutritionAsync, fetchUsdaNutrition, findNutrition, NUTRITION_DB };

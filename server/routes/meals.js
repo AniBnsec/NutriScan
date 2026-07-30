@@ -6,7 +6,7 @@ const DailyLog = require('../models/DailyLog');
 const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const { analyzeFoodImageMultiModel } = require('../services/multiModelAiService');
-const { enrichFoodsWithNutrition } = require('../services/nutritionService');
+const { enrichFoodsWithNutrition, enrichFoodsWithNutritionAsync } = require('../services/nutritionService');
 
 function getTodayDate() {
   return new Date().toISOString().split('T')[0];
@@ -39,9 +39,10 @@ router.post('/scan', auth, upload.single('image'), async (req, res) => {
     const imagePath = req.file.path;
     const { foods: rawFoods, duration, provider } = await analyzeFoodImageMultiModel(imagePath);
     
-    // Enrich with full macro & micronutrient details for complete nutritional breakdown
-    const enrichedFoods = rawFoods.map(food => {
-       const baseEnriched = enrichFoodsWithNutrition([food])[0];
+    // Enrich with full macro & micronutrient details from USDA FoodData Central API
+    const baseEnrichedList = await enrichFoodsWithNutritionAsync(rawFoods);
+    const enrichedFoods = rawFoods.map((food, idx) => {
+       const baseEnriched = baseEnrichedList[idx];
        if (food.logmealNutrition && food.logmealNutrition.calories > 0) {
           return {
              ...food,
@@ -91,8 +92,8 @@ router.post('/manual', auth, async (req, res) => {
     const { name, foods, notes, mealType } = req.body;
     if (!foods || foods.length === 0) return res.status(400).json({ message: 'No foods provided' });
 
-    // Enrich nutrition from food names using the nutrition service
-    const enrichedFoods = enrichFoodsWithNutrition(
+    // Enrich nutrition from food names using USDA FoodData Central API
+    const enrichedFoods = await enrichFoodsWithNutritionAsync(
       foods.map(f => ({ name: f.name, portion_g: f.portion_g || 100, category: f.category || 'other', confidence: 1 }))
     );
 
