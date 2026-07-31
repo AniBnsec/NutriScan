@@ -112,7 +112,8 @@ router.post('/', auth, async (req, res) => {
     const { name, duration, notes } = req.body;
     if (!name || !duration) return res.status(400).json({ message: 'Name and duration required' });
 
-    const metData = MET_DB[name.toLowerCase()] || { met: 5, cat: 'other' };
+    const nameKey = Object.keys(MET_DB).find(k => k.toLowerCase() === name.toLowerCase()) || name.toLowerCase();
+    const metData = MET_DB[nameKey] || { met: 5, cat: 'other' };
     const weightKg = req.user.weight || 70;
     const caloriesBurned = Math.round(metData.met * weightKg * (duration / 60));
 

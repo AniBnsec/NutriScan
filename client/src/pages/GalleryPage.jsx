@@ -57,7 +57,7 @@ export default function GalleryPage() {
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '5rem', background: 'var(--surface-light)', position: 'relative' }}>
                   {meal.image && (
                     <img 
-                      src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${meal.image}`} 
+                      src={meal.image.startsWith('http') ? meal.image : `${import.meta.env.VITE_API_URL || ''}${meal.image}`} 
                       alt={meal.name}
                       style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0, zIndex: 1 }}
                       onError={(e) => { e.target.style.display = 'none'; }}
@@ -93,7 +93,7 @@ export default function GalleryPage() {
               <div style={{ width: '100%', height: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10rem', background: 'var(--surface-light)', position: 'relative' }}>
                 {selected.image && (
                   <img 
-                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${selected.image}`} 
+                    src={selected.image.startsWith('http') ? selected.image : `${import.meta.env.VITE_API_URL || ''}${selected.image}`} 
                     alt={selected.name}
                     style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0, zIndex: 1 }}
                     onError={(e) => { e.target.style.display = 'none'; }}

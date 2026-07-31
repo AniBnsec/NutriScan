@@ -32,7 +32,7 @@ export default function ExercisePage() {
   }, []);
 
   const filtered = query.length >= 1
-    ? db.filter(e => e.name.includes(query.toLowerCase()) && (activeFilter === 'all' || e.category === activeFilter)).slice(0, 8)
+    ? db.filter(e => e.name.toLowerCase().includes(query.toLowerCase()) && (activeFilter === 'all' || e.category === activeFilter)).slice(0, 8)
     : db.filter(e => activeFilter === 'all' || e.category === activeFilter).slice(0, 6);
 
   const previewCalories = selected ? Math.round(selected.met * (user?.weight || 70) * (duration / 60)) : 0;

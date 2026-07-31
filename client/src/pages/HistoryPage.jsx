@@ -188,7 +188,7 @@ export default function HistoryPage() {
                   <div className="meal-card-img" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', background: 'var(--surface-light)', borderRadius: 10, width: 60, height: 60, overflow: 'hidden' }}>
                     {meal.image && (
                       <img 
-                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${meal.image}`} 
+                        src={meal.image.startsWith('http') ? meal.image : `${import.meta.env.VITE_API_URL || ''}${meal.image}`} 
                         alt={meal.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0, zIndex: 1 }}
                         onError={(e) => { e.target.style.display = 'none'; }}

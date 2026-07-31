@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
   weightGoalType: { type: String, enum: ['lose', 'gain', 'maintain'], default: 'maintain' },
   weeklyGoalRate: { type: Number, default: 0.5 }, // kg per week
   dietMode: { type: String, enum: ['general', 'keto', 'vegan', 'high_protein', 'low_carb', 'mediterranean', 'intermittent_fasting'], default: 'general' },
-  language: { type: String, enum: ['en', 'hi'], default: 'en' },
+  language: { type: String, enum: ['en', 'hi', 'es', 'fr', 'de', 'ar', 'zh', 'pt', 'ja', 'it', 'ru', 'ko', 'tr', 'vi'], default: 'en' },
   theme: { type: String, enum: ['dark', 'light'], default: 'dark' },
 }, { timestamps: true });
 

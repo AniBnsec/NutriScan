@@ -34,7 +34,8 @@ export default function ProfilePage() {
 
   const bmi = calcBMI(+form.weight, +form.height);
   const bmiCat = getBMICategory(bmi);
-  const bmiInfo = bmi ? { label: t(`profile.${bmiCat.label.toLowerCase()}`), color: bmiCat.color } : null;
+  const BMI_LOCALE_MAP = { 'Underweight': 'underweight', 'Normal Weight': 'normal', 'Overweight': 'overweight', 'Obese': 'obese' };
+  const bmiInfo = bmi ? { label: t(`profile.${BMI_LOCALE_MAP[bmiCat.label] || 'normal'}`), color: bmiCat.color } : null;
   const tdee = calcTDEE(+form.weight, +form.height, +form.age, form.gender, form.activityLevel);
 
   useEffect(() => {
@@ -42,12 +43,12 @@ export default function ProfilePage() {
       setForm(p => ({
         ...p,
         calorieGoal: tdee,
-        proteinGoal: Math.round(+form.weight * 2 || 150),
+        proteinGoal: Math.round((+p.weight * 2) || 150),
         carbGoal: Math.round((tdee * 0.45) / 4),
         fatGoal: Math.round((tdee * 0.25) / 9),
       }));
     }
-  }, [autoGoal, tdee, form.weight]);
+  }, [autoGoal, tdee]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -81,7 +82,7 @@ export default function ProfilePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div className="input-group">
                 <label className="input-label">{t('profile.fullName')}</label>
-                <input {...inp('name')} placeholder={t('profile.namePlaceholder')} />
+                <input {...inp('name')} placeholder={t('auth.namePlaceholder')} />
               </div>
               <div className="grid-2" style={{ gap: 12 }}>
                 <div className="input-group">
@@ -98,11 +99,11 @@ export default function ProfilePage() {
               </div>
               <div className="grid-2" style={{ gap: 12 }}>
                 <div className="input-group">
-                  <label className="input-label">{t('profile.height')} (ft)</label>
+                   <label className="input-label">{t('profile.heightCm')}</label>
                   <input {...inp('height')} type="number" step="0.1" placeholder="5.9" min={3} max={8} />
                 </div>
                 <div className="input-group">
-                  <label className="input-label">{t('profile.weight')} (kg)</label>
+                  <label className="input-label">{t('profile.weightKg')}</label>
                   <input {...inp('weight')} type="number" placeholder="70" min={20} max={300} />
                 </div>
               </div>
@@ -165,21 +166,21 @@ export default function ProfilePage() {
 
           <div className="glass" style={{ padding: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div className="chart-title" style={{ marginBottom: 0 }}>{t('profile.nutritionGoals')}</div>
+              <div className="chart-title" style={{ marginBottom: 0 }}>{t('profile.dailyGoals')}</div>
               {tdee && (
                 <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: '0.8rem', color: 'var(--primary)' }}>
-                  <input type="checkbox" checked={autoGoal} onChange={e => setAutoGoal(e.target.checked)} style={{ accentColor: 'var(--primary)' }} />
-                  {t('profile.autoTDEE')}
+                   <input type="checkbox" checked={autoGoal} onChange={e => setAutoGoal(e.target.checked)} style={{ accentColor: 'var(--primary)' }} />
+                  {t('profile.autoFromTDEE')}
                 </label>
               )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                { key: 'calorieGoal', label: t('profile.calories'), unit: 'kcal', min: 800, max: 6000 },
-                { key: 'proteinGoal', label: t('profile.protein'), unit: 'g', min: 30, max: 400 },
-                { key: 'carbGoal', label: t('profile.carbs'), unit: 'g', min: 50, max: 700 },
-                { key: 'fatGoal', label: t('profile.fat'), unit: 'g', min: 20, max: 200 },
-                { key: 'fiberGoal', label: t('profile.fiber'), unit: 'g', min: 10, max: 60 },
+                { key: 'calorieGoal', label: t('dashboard.calories'), unit: 'kcal', min: 800, max: 6000 },
+                { key: 'proteinGoal', label: t('dashboard.protein'), unit: 'g', min: 30, max: 400 },
+                { key: 'carbGoal', label: t('dashboard.carbs'), unit: 'g', min: 50, max: 700 },
+                { key: 'fatGoal', label: t('dashboard.fat'), unit: 'g', min: 20, max: 200 },
+                { key: 'fiberGoal', label: t('dashboard.fiber'), unit: 'g', min: 10, max: 60 },
               ].map(g => (
                 <div key={g.key} className="input-group">
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>

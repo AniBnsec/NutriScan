@@ -91,7 +91,7 @@ export default function FoodSearch({ onAddItem }) {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const filtered = query.length >= 1
-    ? FOOD_LIST.filter(f => f.name.includes(query.toLowerCase())).slice(0, 8)
+    ? FOOD_LIST.filter(f => f.name.toLowerCase().includes(query.toLowerCase())).slice(0, 8)
     : [];
 
   const handleSelect = (food) => {
