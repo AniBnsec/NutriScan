@@ -7,8 +7,6 @@ export default function LoginPage() {
     <AuthLayout>
       <SignIn
         appearance={clerkAppearance}
-        routing="path"
-        path="/login"
         signUpUrl="/register"
         fallbackRedirectUrl="/dashboard"
       />
