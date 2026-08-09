@@ -46,6 +46,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         fallbackRedirectUrl="/dashboard"
         signInUrl="/login"
         signUpUrl="/register"
+        localization={{
+          formFieldInputPlaceholder__username: 'Username',
+        }}
       >
         <BrowserRouter>
           <LanguageProvider>
