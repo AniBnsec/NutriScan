@@ -255,7 +255,7 @@ const en = {
     gender: 'Gender',
     male: 'Male',
     female: 'Female',
-    heightCm: 'Height (cm)',
+    heightCm: 'Height (ft)',
     weightKg: 'Weight (kg)',
     activityLevel: 'Activity Level',
     sedentary: 'Sedentary',

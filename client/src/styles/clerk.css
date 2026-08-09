@@ -1,0 +1,409 @@
+/* ═══════════════════════════════════════════════════════
+   Clerk Authentication Custom Design System
+   Modern Glassmorphism & Cyber Neon Overrides
+═══════════════════════════════════════════════════════ */
+
+/* Root Card & Container Sizing */
+.cl-card, .cl-rootBox, .cl-signIn-start, .cl-signUp-start, .cl-main, .cl-cardBox,
+.cl-signIn-havingTrouble, .cl-signIn-forgotPasswordMethods,
+.cl-signIn-resetPassword, .cl-signIn-resetPasswordSuccess {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* Hide ALL Clerk default header & subtitle text */
+.cl-header, .cl-headerTitle, .cl-headerSubtitle,
+.cl-signIn-start__headerTitle, .cl-signIn-start__headerSubtitle,
+.cl-signUp-start__headerTitle, .cl-signUp-start__headerSubtitle {
+  display: none !important;
+}
+
+/* ── Social Buttons ── */
+.cl-socialButtonsRoot,
+.cl-socialButtons {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin: 10px 0 8px 0 !important;
+  padding: 6px 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  flex-wrap: nowrap !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+  height: auto !important;
+}
+
+.cl-socialButtonsIconButton,
+.cl-socialButtonsBlockButton {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  height: auto !important;
+  min-height: 44px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+}
+
+.cl-socialButtonsIconButton:hover,
+.cl-socialButtonsBlockButton:hover {
+  background: rgba(0, 245, 160, 0.15) !important;
+  border-color: rgba(0, 245, 160, 0.4) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 245, 160, 0.25) !important;
+}
+
+/* SVG icons inside social buttons */
+.cl-socialButtonsIconButton svg,
+.cl-socialButtonsBlockButton svg,
+.cl-providerIcon {
+  width: 22px !important;
+  height: 22px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+}
+
+/* Apple icon — make it white */
+.cl-socialButtonsIconButton[data-provider="apple"] svg,
+.cl-socialButtonsBlockButton[data-provider="apple"] svg {
+  filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,255,255,0.5)) !important;
+}
+.cl-socialButtonsIconButton[data-provider="apple"] svg path {
+  fill: #ffffff !important;
+}
+
+/* ── Divider ── */
+.cl-dividerLine {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+.cl-dividerText {
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+}
+
+/* ── Form Field Labels (Left-to-Right Alignment) ── */
+.cl-formFieldLabelRow {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  margin-bottom: 6px !important;
+  text-align: left !important;
+}
+
+.cl-formFieldLabel {
+  color: #cbd5e1 !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  text-align: left !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+.cl-formFieldHintText {
+  color: #64748b !important;
+  font-size: 0.78rem !important;
+  font-weight: 400 !important;
+  text-align: left !important;
+}
+/* ── Form Fields & Groups ── */
+.cl-formField,
+.cl-formFieldInputGroup,
+.cl-formFieldInputGroup__hasIcon,
+.cl-formFieldAction,
+.cl-input {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  overflow: visible !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.cl-formFieldInputGroup:focus-within {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ── Text Inputs ── */
+.cl-formFieldInput {
+  width: 100% !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #f8fafc !important;
+  border-radius: 14px !important;
+  padding: 12px 16px !important;
+  font-size: 0.95rem !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: all 0.25s ease !important;
+}
+
+.cl-formFieldInput:focus,
+.cl-formFieldInput:focus-visible {
+  border-color: #00f5a0 !important;
+  box-shadow: 0 0 0 3px rgba(0, 245, 160, 0.25) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  outline: none !important;
+}
+
+/* ── Primary Button ── */
+.cl-formButtonPrimary {
+  background: linear-gradient(135deg, #00f5a0 0%, #00d2ff 100%) !important;
+  color: #04060c !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  border-radius: 14px !important;
+  padding: 14px !important;
+  box-shadow: 0 4px 20px rgba(0, 245, 160, 0.35) !important;
+  transition: all 0.3s ease !important;
+  margin-top: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.cl-formButtonPrimary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 30px rgba(0, 245, 160, 0.55) !important;
+}
+
+/* ── Secondary / Ghost Buttons (e.g. "Sign out of all other devices") ── */
+.cl-formButtonReset,
+.cl-formResendCodeLink,
+.cl-signIn-alternativeMethods button,
+.cl-alternativeMethodsBlockButton,
+.cl-alternativeMethodsEmailLink {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 12px !important;
+  color: #94a3b8 !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  padding: 10px 16px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-align: center !important;
+  display: block !important;
+  transition: all 0.2s ease !important;
+  margin-top: 8px !important;
+}
+
+.cl-formButtonReset:hover,
+.cl-alternativeMethodsBlockButton:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #f8fafc !important;
+}
+
+/* ── "Sign out of all other devices" Button — Fix text overflow ── */
+[data-localization-key="signIn.resetPassword.button"],
+.cl-signIn-resetPassword .cl-formButtonSecondary,
+.cl-formButtonSecondary {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  color: #94a3b8 !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  padding: 10px 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-align: center !important;
+  line-height: 1.4 !important;
+  display: block !important;
+  min-height: 44px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* ── Footer & Links ── */
+.cl-footer {
+  background: transparent !important;
+  border-top: none !important;
+  padding-top: 16px !important;
+  padding-bottom: 0 !important;
+  margin-top: 12px !important;
+}
+
+.cl-footerActionText {
+  color: #94a3b8 !important;
+  font-size: 0.9rem !important;
+}
+
+.cl-footerActionLink {
+  color: #00f5a0 !important;
+  font-weight: 600 !important;
+}
+
+.cl-footerActionLink:hover {
+  text-decoration: underline !important;
+}
+
+/* ── User Button Popover ── */
+.cl-userButtonPopoverCard {
+  background: rgba(13, 18, 36, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* ── Multi-field Row ── */
+.cl-formFieldRow {
+  display: flex !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+.cl-formFieldRow .cl-formField {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+/* ── Identity Preview ── */
+.cl-identityPreview {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  color: #f8fafc !important;
+}
+
+.cl-identityPreviewText {
+  color: #f8fafc !important;
+}
+
+/* ── OTP Code Field — Animated Glow ── */
+.cl-otpCodeField,
+.cl-otpCodeFieldInputs,
+.cl-otpCodeField__inputs,
+.cl-formField--otp,
+.cl-formFieldInputGroup--otp,
+div[class*="otpCodeField"] {
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  text-align: center !important;
+}
+
+.cl-otpCodeFieldInput {
+  width: 48px !important;
+  height: 56px !important;
+  min-width: 48px !important;
+  background: rgba(0, 245, 160, 0.05) !important;
+  border: 1.5px solid rgba(0, 245, 160, 0.35) !important;
+  color: #00f5a0 !important;
+  border-radius: 14px !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  font-family: 'Space Grotesk', monospace !important;
+  text-align: center !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 0 8px rgba(0, 245, 160, 0.1) !important;
+  caret-color: #00f5a0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.cl-otpCodeFieldInput:focus {
+  border-color: #00f5a0 !important;
+  box-shadow: 0 0 0 3px rgba(0, 245, 160, 0.3), 0 0 20px rgba(0, 245, 160, 0.25) !important;
+  background: rgba(0, 245, 160, 0.12) !important;
+  transform: scale(1.08) !important;
+  outline: none !important;
+}
+
+.cl-otpCodeFieldInput:not(:placeholder-shown) {
+  border-color: #00f5a0 !important;
+  background: rgba(0, 245, 160, 0.12) !important;
+  box-shadow: 0 0 16px rgba(0, 245, 160, 0.35) !important;
+  animation: otp-filled 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes otp-pulse-idle {
+  0%, 100% { box-shadow: 0 0 6px rgba(0, 245, 160, 0.1); }
+  50% { box-shadow: 0 0 14px rgba(0, 245, 160, 0.25); }
+}
+
+@keyframes otp-filled {
+  0% { transform: scale(0.85); opacity: 0.6; }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── "Forgot password?" link — Right Aligned ── */
+.cl-formFieldLabelRow .cl-formFieldAction,
+a.cl-formFieldAction,
+.cl-formFieldActionLink {
+  color: #00f5a0 !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  text-align: right !important;
+  margin-left: auto !important;
+  display: inline-block !important;
+  float: none !important;
+}
+
+/* ── Error messages ── */
+.cl-formFieldErrorText,
+.cl-formFieldError {
+  color: #ff6b6b !important;
+  font-size: 0.82rem !important;
+  margin-top: 4px !important;
+}
+
+/* ── "Back" link ── */
+.cl-backLink, .cl-backLink * {
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+  text-decoration: none !important;
+}
+
+.cl-backLink:hover {
+  color: #f8fafc !important;
+}
+
+/* ── "Use another method" link ── */
+.cl-footerPages,
+.cl-signIn-havingTrouble,
+.cl-alternativeMethods__link {
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+  text-align: center !important;
+  margin-top: 12px !important;
+}
+
+/* ── "Powered by Clerk" badge — hide in dev ── */
+.cl-internal-b3fm6y {
+  display: none !important;
+}

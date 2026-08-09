@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import useStore from './store/useStore';
+import { useAuth } from '@clerk/clerk-react';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -16,30 +16,55 @@ import SupplementsPage from './pages/SupplementsPage';
 import SettingsPage from './pages/SettingsPage';
 import ComparePage from './pages/ComparePage';
 import GalleryPage from './pages/GalleryPage';
+import MealDetailsPage from './pages/MealDetailsPage';
+import FridgePage from './pages/FridgePage';
+import MenuScannerPage from './pages/MenuScannerPage';
+import SocialPage from './pages/SocialPage';
+import GamePage from './pages/GamePage';
 import AppLayout from './components/layout/AppLayout';
 
+const Spinner = () => (
+  <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#04060c' }}>
+    <div className="spinner" />
+  </div>
+);
+
+// Blocks access if not signed in → redirects to /login
 function ProtectedRoute({ children }) {
-  const isAuthenticated = useStore(s => s.isAuthenticated);
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  const { isLoaded, isSignedIn } = useAuth();
+  if (!isLoaded) return <Spinner />;
+  if (!isSignedIn) return <Navigate to="/login" replace />;
+  return children;
 }
 
+// Redirects away from /login and /register if already signed in
 function PublicRoute({ children }) {
-  const isAuthenticated = useStore(s => s.isAuthenticated);
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
+  const { isLoaded, isSignedIn } = useAuth();
+  if (!isLoaded) return <Spinner />;
+  if (isSignedIn) return <Navigate to="/dashboard" replace />;
+  return children;
 }
 
 const Protected = ({ children }) => (
-  <ProtectedRoute><AppLayout>{children}</AppLayout></ProtectedRoute>
+  <ProtectedRoute>
+    <AppLayout>{children}</AppLayout>
+  </ProtectedRoute>
 );
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      <Route path="/login/*" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Route path="/register/*" element={<PublicRoute><RegisterPage /></PublicRoute>} />
       <Route path="/dashboard" element={<Protected><DashboardPage /></Protected>} />
       <Route path="/scanner" element={<Protected><ScannerPage /></Protected>} />
+      <Route path="/meal-details" element={<Protected><MealDetailsPage /></Protected>} />
+      <Route path="/meal/:id" element={<Protected><MealDetailsPage /></Protected>} />
+      <Route path="/fridge" element={<Protected><FridgePage /></Protected>} />
+      <Route path="/menu" element={<Protected><MenuScannerPage /></Protected>} />
+      <Route path="/social" element={<Protected><SocialPage /></Protected>} />
+      <Route path="/game" element={<Protected><GamePage /></Protected>} />
       <Route path="/history" element={<Protected><HistoryPage /></Protected>} />
       <Route path="/analytics" element={<Protected><AnalyticsPage /></Protected>} />
       <Route path="/profile" element={<Protected><ProfilePage /></Protected>} />

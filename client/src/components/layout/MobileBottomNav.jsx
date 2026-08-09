@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../i18n/index.jsx';
 import useStore from '../../store/useStore';
+import { motion } from 'framer-motion';
 
 export default function MobileBottomNav() {
   const { t } = useTranslation();
@@ -19,41 +20,39 @@ export default function MobileBottomNav() {
 
   const ALL_GROUPS = [
     {
-      label: t('nav.tracking'),
+      label: 'Tracking',
       items: [
-        { to: '/dashboard', icon: '📊', label: t('nav.dashboard') },
-        { to: '/scanner', icon: '📸', label: t('nav.scanFood') },
-        { to: '/history', icon: '📝', label: t('nav.mealHistory') },
-        { to: '/gallery', icon: '🖼️', label: t('nav.photoGallery') },
+        { to: '/dashboard', icon: '📊', label: 'Dashboard' },
+        { to: '/scanner', icon: '📸', label: 'AI Camera Scanner' },
+        { to: '/fridge', icon: '🧊', label: 'Fridge AI' },
+        { to: '/menu', icon: '📜', label: 'Menu Scanner' },
+        { to: '/history', icon: '📝', label: 'Nutrition Timeline' },
       ],
     },
     {
-      label: t('nav.health'),
+      label: 'Health & Details',
       items: [
-        { to: '/weight', icon: '⚖️', label: t('nav.weightTracker') },
-        { to: '/exercise', icon: '🏋️', label: t('nav.exerciseLog') },
-        { to: '/supplements', icon: '💊', label: t('nav.supplements') },
+        { to: '/meal-details', icon: '🥗', label: 'Meal Details' },
+        { to: '/weight', icon: '⚖️', label: 'Weight Tracker' },
+        { to: '/exercise', icon: '🏋️', label: 'Exercise Log' },
+        { to: '/supplements', icon: '💊', label: 'Supplements' },
       ],
     },
     {
-      label: t('nav.planning'),
+      label: 'AI & Arcade',
       items: [
-        { to: '/planner', icon: '🎯', label: t('nav.mealPlanner') },
-        { to: '/analytics', icon: '📈', label: t('nav.analytics') },
-        { to: '/compare', icon: '📊', label: t('nav.compareMeals') },
+        { to: '/coach', icon: '🤖', label: 'AI Smart Coach' },
+        { to: '/game', icon: '🎮', label: 'Bio-Pet Arcade' },
+        { to: '/social', icon: '👥', label: 'Social & Battles' },
+        { to: '/analytics', icon: '📈', label: 'Interactive Analytics' },
+        { to: '/planner', icon: '🎯', label: 'Meal Planner' },
       ],
     },
     {
-      label: t('nav.ai'),
+      label: 'Account',
       items: [
-        { to: '/coach', icon: '🤖', label: t('nav.aiCoach') },
-      ],
-    },
-    {
-      label: t('nav.account'),
-      items: [
-        { to: '/profile', icon: '👤', label: t('nav.profileGoals') },
-        { to: '/settings', icon: '⚙️', label: t('nav.settings') },
+        { to: '/profile', icon: '👤', label: 'Profile & Mode' },
+        { to: '/settings', icon: '⚙️', label: 'Settings' },
       ],
     },
   ];

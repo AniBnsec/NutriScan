@@ -180,6 +180,37 @@ export default function SettingsPage() {
           </div>
           {!remindersEnabled && <p style={{ fontSize: '0.8rem', color: 'var(--text-faint)', marginTop: 12 }}>{t('settings.remindersOffMsg')}</p>}
         </div>
+
+        {/* ── Danger Zone ── */}
+        <div className="glass" style={{ padding: 24, border: '1px solid rgba(255,107,107,0.3)', background: 'rgba(255,107,107,0.03)' }}>
+          <div className="chart-title" style={{ color: '#ff6b6b', marginBottom: 6 }}>⚠️ Danger Zone</div>
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 18 }}>
+            Permanently clears all meals, nutrition history, user data, and localStorage. This action cannot be undone.
+          </p>
+          <button
+            className="btn"
+            onClick={() => {
+              if (!window.confirm('⚠️ Are you sure? This will permanently delete all your meals, history, and app data. This cannot be undone.')) return;
+              // Clear all localStorage keys
+              localStorage.clear();
+              // Reset Zustand store
+              useStore.setState({
+                user: null, token: null, isAuthenticated: false,
+                todayData: null, meals: [], weeklyData: null, stats: null,
+                scanResult: null,
+              });
+              toast.success('App data cleared — refreshing...');
+              setTimeout(() => { window.location.href = '/'; }, 1200);
+            }}
+            style={{
+              background: 'rgba(255,107,107,0.12)', border: '1px solid rgba(255,107,107,0.4)',
+              color: '#ff6b6b', fontWeight: 600, padding: '10px 20px', borderRadius: 12,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s',
+            }}
+          >
+            🗑️ Reset Full App Data
+          </button>
+        </div>
       </div>
     </div>
   );

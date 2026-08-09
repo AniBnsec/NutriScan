@@ -40,6 +40,8 @@ app.use('/api/exercise', require('./routes/exercise'));
 app.use('/api/supplements', require('./routes/supplements'));
 app.use('/api/coach', require('./routes/coach'));
 app.use('/api/planner', require('./routes/planner'));
+app.use('/api/fridge', require('./routes/fridge'));
+app.use('/api/menu', require('./routes/menu'));
 
 // Health check
 app.get('/api/health', (req, res) => {

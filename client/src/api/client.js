@@ -6,8 +6,23 @@ const api = axios.create({
   timeout: 60000,
 });
 
+// Token getter — set by ClerkAuthBridge once Clerk is ready
+let _getClerkToken = null;
+export const setClerkTokenGetter = (fn) => { _getClerkToken = fn; };
+
 // Attach JWT token to every request
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config) => {
+  try {
+    if (_getClerkToken) {
+      const token = await _getClerkToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+        return config;
+      }
+    }
+  } catch (e) {}
+
+  // Fallback to localStorage token (for non-Clerk / legacy auth)
   const token = localStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
@@ -19,8 +34,6 @@ api.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
     }
     return Promise.reject(err);
   }

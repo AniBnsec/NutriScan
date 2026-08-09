@@ -19,11 +19,20 @@ const safeGetItem = (key, fallback = null) => {
   }
 };
 
+// Validate that the stored user belongs to the active session
+const getValidStoredUser = () => {
+  const storedUser = safeGetJSON('user', null);
+  const storedUid = safeGetItem('nutriscan_uid');
+  if (!storedUser || !storedUid) return null;
+  if (storedUser.id !== storedUid && storedUser._id !== storedUid) return null;
+  return storedUser;
+};
+
 const useStore = create((set, get) => ({
   // ── Auth ───────────────────────────────────────────────
-  user: safeGetJSON('user', null),
+  user: getValidStoredUser(),
   token: safeGetItem('token'),
-  isAuthenticated: !!safeGetItem('token'),
+  isAuthenticated: !!safeGetItem('nutriscan_uid'),
 
   login: async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });

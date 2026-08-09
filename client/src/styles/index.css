@@ -4,42 +4,44 @@
 ═══════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import './clerk.css';
 
 /* ── CSS Variables ── */
 :root {
-  --bg-deep:      #060810;
-  --bg-base:      #0a0c14;
-  --bg-surface:   #0f1120;
-  --bg-card:      rgba(255, 255, 255, 0.04);
-  --bg-card-hover:rgba(255, 255, 255, 0.07);
-  --border:       rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.16);
+  --bg-deep:      #04060c;
+  --bg-base:      #080c18;
+  --bg-surface:   #0d1224;
+  --bg-card:      rgba(15, 23, 42, 0.55);
+  --bg-card-hover:rgba(20, 30, 55, 0.75);
+  --border:       rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(0, 245, 160, 0.35);
 
-  --primary:      #00e5a0;
-  --primary-dim:  rgba(0, 229, 160, 0.15);
-  --primary-glow: rgba(0, 229, 160, 0.35);
-  --secondary:    #7c6af7;
-  --secondary-dim:rgba(124, 106, 247, 0.15);
-  --accent:       #ff6b6b;
-  --accent-dim:   rgba(255, 107, 107, 0.15);
-  --gold:         #ffd166;
-  --gold-dim:     rgba(255, 209, 102, 0.15);
-  --blue:         #4fc3f7;
-  --blue-dim:     rgba(79, 195, 247, 0.15);
+  --primary:      #00f5a0;
+  --primary-dim:  rgba(0, 245, 160, 0.15);
+  --primary-glow: rgba(0, 245, 160, 0.4);
+  --secondary:    #8b5cf6;
+  --secondary-dim:rgba(139, 92, 246, 0.18);
+  --secondary-glow:rgba(139, 92, 246, 0.4);
+  --accent:       #ec4899;
+  --accent-dim:   rgba(236, 72, 153, 0.18);
+  --gold:         #fbbf24;
+  --gold-dim:     rgba(251, 191, 36, 0.18);
+  --blue:         #00d2ff;
+  --blue-dim:     rgba(0, 210, 255, 0.18);
 
-  --text:         #f0f4ff;
-  --text-muted:   #8892a4;
-  --text-faint:   #4a5568;
+  --text:         #f8fafc;
+  --text-muted:   #94a3b8;
+  --text-faint:   #475569;
 
   --sidebar-w:    240px;
   --nav-h:        64px;
-  --radius:       16px;
-  --radius-sm:    10px;
-  --radius-lg:    24px;
+  --radius:       20px;
+  --radius-sm:    12px;
+  --radius-lg:    28px;
 
-  --shadow:       0 8px 32px rgba(0,0,0,0.4);
-  --shadow-glow:  0 0 40px rgba(0, 229, 160, 0.12);
-  --transition:   all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow:       0 10px 40px rgba(0, 0, 0, 0.6);
+  --shadow-glow:  0 0 50px rgba(0, 245, 160, 0.18);
+  --transition:   all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Reset ── */
@@ -1192,3 +1194,127 @@ input[type="range"]:disabled { opacity: 0.4; cursor: not-allowed; }
     to { transform: translateY(0); }
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   Futuristic AI Lighting, Mesh Glow & Clerk Customization
+═══════════════════════════════════════════════════════ */
+
+/* ── Ambient AI Glow & Mesh ── */
+.ambient-ai-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.glow-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.28;
+}
+
+.glow-blob-1 {
+  width: 600px;
+  height: 600px;
+  top: -120px;
+  left: -120px;
+  background: radial-gradient(circle, var(--primary) 0%, rgba(0,245,160,0) 70%);
+}
+
+.glow-blob-2 {
+  width: 650px;
+  height: 650px;
+  bottom: -160px;
+  right: -120px;
+  background: radial-gradient(circle, var(--secondary) 0%, rgba(139,92,246,0) 70%);
+}
+
+.glow-blob-3 {
+  width: 500px;
+  height: 500px;
+  top: 35%;
+  left: 40%;
+  background: radial-gradient(circle, #ffb800 0%, rgba(255,184,0,0) 70%);
+}
+
+.radial-spotlight {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 184, 0, 0.08) 0%, rgba(139, 92, 246, 0.05) 45%, transparent 75%);
+  pointer-events: none;
+}
+
+.cyber-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 85%);
+}
+
+/* ── Card Glow & Glass Enhancements ── */
+.glass {
+  background: rgba(13, 18, 36, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(28px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.glass:hover {
+  border-color: rgba(0, 245, 160, 0.4) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 245, 160, 0.18) !important;
+  transform: translateY(-3px);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 36px 32px 32px;
+  border-radius: 28px !important;
+  position: relative;
+  overflow: hidden !important;
+  box-sizing: border-box;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00f5a0, #8b5cf6, #00d2ff, transparent);
+  background-size: 200% 100%;
+  animation: shimmerBorder 3s linear infinite;
+  z-index: 5;
+}
+
+@keyframes shimmerBorder {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ── Auth Card Scrollbar ── */
+.auth-card-signup::-webkit-scrollbar {
+  width: 5px;
+}
+
+.auth-card-signup::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.auth-card-signup::-webkit-scrollbar-thumb {
+  background: rgba(0, 245, 160, 0.25);
+  border-radius: 4px;
+}
+
+.auth-card-signup::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 245, 160, 0.5);
+}
+

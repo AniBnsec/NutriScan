@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../i18n/index.jsx';
+import BackgroundGrid from '../components/common/BackgroundGrid';
 
 const features = [
   { icon: '📸', title: 'Smart Food Recognition', desc: 'Powered by Google Gemini AI — identify any food from a single photo with high accuracy.', color: 'var(--primary-dim)', iconBg: 'rgba(0,229,160,0.12)' },
@@ -51,7 +52,9 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="landing">
+    <div className="landing" style={{ position: 'relative', overflow: 'hidden' }}>
+      <BackgroundGrid />
+      
       {/* Navbar */}
       <nav className="landing-nav">
         <div className="logo-mark" style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 'clamp(1rem, 4vw, 1.25rem)', whiteSpace: 'nowrap' }}>
@@ -66,7 +69,6 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="hero">
-        <div className="hero-bg" />
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

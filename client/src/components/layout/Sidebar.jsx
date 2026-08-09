@@ -1,58 +1,65 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { UserButton, useClerk } from '@clerk/clerk-react';
 import useStore from '../../store/useStore';
 import { calcBMI } from '../../utils/helpers';
 import { useTranslation } from '../../i18n/index.jsx';
-
+import { motion } from 'framer-motion';
 
 export default function Sidebar() {
   const { user, logout } = useStore();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const { t } = useTranslation();
+  const clerk = useClerk();
 
   const NAV_GROUPS = [
     {
-      label: t('nav.tracking'),
+      label: 'Tracking',
       items: [
-        { to: '/dashboard', icon: '📊', label: t('nav.dashboard') },
-        { to: '/scanner', icon: '📸', label: t('nav.scanFood') },
-        { to: '/history', icon: '📝', label: t('nav.mealHistory') },
-        { to: '/gallery', icon: '🖼️', label: t('nav.photoGallery') },
+        { to: '/dashboard', icon: '📊', label: 'Dashboard' },
+        { to: '/scanner', icon: '📸', label: 'AI Scanner' },
+        { to: '/fridge', icon: '🧊', label: 'Fridge AI' },
+        { to: '/menu', icon: '📜', label: 'Menu Scanner' },
+        { to: '/history', icon: '📝', label: 'Timeline' },
+        { to: '/gallery', icon: '🖼️', label: 'Photo Gallery' },
       ],
     },
     {
-      label: t('nav.health'),
+      label: 'Health & Details',
       items: [
-        { to: '/weight', icon: '⚖️', label: t('nav.weightTracker') },
-        { to: '/exercise', icon: '🏋️', label: t('nav.exerciseLog') },
-        { to: '/supplements', icon: '💊', label: t('nav.supplements') },
+        { to: '/meal-details', icon: '🥗', label: 'Meal Details' },
+        { to: '/weight', icon: '⚖️', label: 'Weight Tracker' },
+        { to: '/exercise', icon: '🏋️', label: 'Exercise Log' },
+        { to: '/supplements', icon: '💊', label: 'Supplements' },
       ],
     },
     {
-      label: t('nav.planning'),
+      label: 'AI & Arcade',
       items: [
-        { to: '/planner', icon: '🎯', label: t('nav.mealPlanner') },
-        { to: '/analytics', icon: '📈', label: t('nav.analytics') },
-        { to: '/compare', icon: '📊', label: t('nav.compareMeals') },
+        { to: '/coach', icon: '🤖', label: 'AI Smart Coach' },
+        { to: '/game', icon: '🎮', label: 'Bio-Pet Arcade' },
+        { to: '/social', icon: '👥', label: 'Social & Battles' },
+        { to: '/analytics', icon: '📈', label: 'Analytics' },
+        { to: '/planner', icon: '🎯', label: 'Meal Planner' },
       ],
     },
     {
-      label: t('nav.ai'),
+      label: 'Account',
       items: [
-        { to: '/coach', icon: '🤖', label: t('nav.aiCoach') },
-      ],
-    },
-    {
-      label: t('nav.account'),
-      items: [
-        { to: '/profile', icon: '👤', label: t('nav.profileGoals') },
-        { to: '/settings', icon: '⚙️', label: t('nav.settings') },
+        { to: '/profile', icon: '👤', label: 'Profile & Mode' },
+        { to: '/settings', icon: '⚙️', label: 'Settings' },
       ],
     },
   ];
 
-  const handleLogout = () => { logout(); navigate('/'); };
+  const handleLogout = async () => {
+    try {
+      if (clerk?.signOut) await clerk.signOut();
+    } catch (e) {}
+    logout();
+    navigate('/');
+  };
   const bmi = calcBMI(user?.weight, user?.height);
 
   return (
@@ -64,7 +71,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <nav className="sidebar-nav" style={{ overflowY: 'auto', flex: 1 }}>
+      <nav className="sidebar-nav" style={{ overflowY: 'auto', flex: 1, position: 'relative' }}>
         {NAV_GROUPS.map(group => (
           <div key={group.label}>
             {!collapsed && (
@@ -85,7 +92,7 @@ export default function Sidebar() {
       {/* BMI / Goal widget */}
       {!collapsed && user?.weight && user?.height && (
         <div style={{ padding: '0 10px', marginBottom: 10 }}>
-          <div style={{ padding: '10px 12px', background: 'rgba(0,229,160,0.06)', borderRadius: 10, border: '1px solid rgba(0,229,160,0.1)', fontSize: '0.75rem' }}>
+          <div style={{ padding: '10px 12px', background: 'rgba(0,245,160,0.06)', borderRadius: 12, border: '1px solid rgba(0,245,160,0.15)', fontSize: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-faint)' }}>BMI</span>
               <span style={{ color: 'var(--primary)', fontWeight: 700 }}>{bmi}</span>
@@ -105,10 +112,32 @@ export default function Sidebar() {
 
       <div className="sidebar-footer">
         {!collapsed && (
-          <div style={{ padding: '10px 12px', marginBottom: '6px' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-faint)', marginBottom: '3px' }}>{t('common.signedInAs')}</div>
-            <div style={{ fontSize: '0.88rem', fontWeight: 600 }}>{user?.name}</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
+          <div style={{
+            padding: '10px 12px', marginBottom: '6px',
+            display: 'flex', alignItems: 'center', gap: 10,
+            background: 'rgba(255,255,255,0.03)',
+            borderRadius: 12, margin: '0 8px 8px',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}>
+            <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+              <UserButton afterSignOutUrl="/login" />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{
+                fontSize: '0.88rem', fontWeight: 600, color: '#fff',
+                textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
+                lineHeight: 1.3,
+              }}>
+                {user?.name || 'User'}
+              </div>
+              <div style={{
+                fontSize: '0.72rem', color: 'var(--text-muted)',
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                lineHeight: 1.3, marginTop: 1,
+              }}>
+                {user?.email || ''}
+              </div>
+            </div>
           </div>
         )}
         <button className="nav-item btn-ghost" onClick={handleLogout} style={{ width: '100%', justifyContent: collapsed ? 'center' : 'flex-start' }} title={t('common.signOut')}>

@@ -337,30 +337,17 @@ export default function ScannerPage() {
                   </div>
                 )}
 
-                {/* Save */}
-                {!saved ? (
-                  <div className="glass" style={{ padding: 20 }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Save Meal</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      <input className="input" placeholder="Meal name (optional)" value={mealName} onChange={e => setMealName(e.target.value)} />
-                      <select className="input" value={mealType} onChange={e => setMealType(e.target.value)} style={{ cursor: 'pointer' }}>
-                        <option value="breakfast">🌅 Breakfast</option>
-                        <option value="lunch">☀️ Lunch</option>
-                        <option value="snack">🍎 Snack</option>
-                        <option value="dinner">🌙 Dinner</option>
-                      </select>
-                      <button className="btn btn-primary" id="save-meal-btn" onClick={handleSave} disabled={saving} style={{ width: '100%', justifyContent: 'center' }}>
-                        {saving ? 'Saving...' : '💾 Save to Meal History'}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass"
-                    style={{ padding: 20, textAlign: 'center', background: 'var(--primary-dim)', borderColor: 'rgba(0,229,160,0.2)' }}>
+                {/* Save Meal Action */}
+                {saved ? (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass" style={{ padding: 20, textAlign: 'center', background: 'var(--primary-dim)' }}>
                     <div style={{ fontSize: '2rem', marginBottom: 8 }}>✅</div>
                     <div style={{ fontWeight: 600, color: 'var(--primary)' }}>Meal saved!</div>
                     <button className="btn btn-ghost btn-sm" style={{ marginTop: 10 }} onClick={handleReset}>Scan Another</button>
                   </motion.div>
+                ) : (
+                  <button className="btn btn-primary btn-lg" onClick={handleSave} disabled={saving} style={{ width: '100%', justifyContent: 'center' }}>
+                    {saving ? 'Saving...' : '💾 Save Meal to Log'}
+                  </button>
                 )}
               </AnimatePresence>
             )}
@@ -372,3 +359,4 @@ export default function ScannerPage() {
 }
 
 function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+

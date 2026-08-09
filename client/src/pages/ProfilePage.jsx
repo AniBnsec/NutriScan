@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import useStore from '../store/useStore';
 import { calcBMI, getBMICategory, calcTDEE } from '../utils/helpers';
@@ -31,6 +31,24 @@ export default function ProfilePage() {
   });
   const [saving, setSaving] = useState(false);
   const [autoGoal, setAutoGoal] = useState(false);
+  const [selectedDeviceModal, setSelectedDeviceModal] = useState(null);
+  const [wearables, setWearables] = useState([
+    { id: 'apple', name: 'Apple Health', icon: '🍎', connected: true, status: 'Synced 5m ago' },
+    { id: 'garmin', name: 'Garmin Connect', icon: '🏃', connected: true, status: 'Active' },
+    { id: 'oura', name: 'Oura Ring Gen 3', icon: '💍', connected: false, status: 'Tap to connect' },
+    { id: 'whoop', name: 'Whoop 4.0', icon: '⚡', connected: false, status: 'Tap to connect' },
+  ]);
+
+  const toggleWearable = (id) => {
+    setWearables(prev => prev.map(w => {
+      if (w.id === id) {
+        const nextState = !w.connected;
+        toast.success(nextState ? `Connected ${w.name}! ⌚` : `Disconnected ${w.name}`);
+        return { ...w, connected: nextState, status: nextState ? 'Active (Synced)' : 'Tap to connect' };
+      }
+      return w;
+    }));
+  };
 
   const bmi = calcBMI(+form.weight, +form.height);
   const bmiCat = getBMICategory(bmi);
@@ -199,16 +217,181 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Wearables Sync Card */}
+          <div className="glass" style={{ padding: 24 }}>
+            <div className="chart-title" style={{ marginBottom: 14 }}>⌚ Connected Health Wearables</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 }}>
+              {wearables.map((w) => (
+                <div
+                  key={w.id}
+                  onClick={() => setSelectedDeviceModal(w)}
+                  style={{
+                    padding: 12, borderRadius: 14, cursor: 'pointer',
+                    background: w.connected ? 'rgba(0,245,160,0.06)' : 'rgba(255,255,255,0.02)',
+                    border: `1px solid ${w.connected ? 'rgba(0,245,160,0.3)' : 'var(--border)'}`,
+                    fontSize: '0.82rem', transition: 'all 0.2s ease',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, color: w.connected ? '#00e5a0' : 'var(--text-muted)' }}>
+                    <span>{w.icon}</span> {w.name}
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: w.connected ? '#00e5a0' : 'var(--text-faint)', marginTop: 4 }}>
+                    {w.connected ? '✓ ' + w.status : w.status}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Medical Tracking Mode Card */}
+          <div className="glass" style={{ padding: 24 }}>
+            <div className="chart-title" style={{ marginBottom: 10 }}>🏥 Medical & Clinical Tracking Mode</div>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 14 }}>
+              Enable special clinical protocols to monitor blood glucose, insulin sensitivity, sodium restrictions, or renal protein caps.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { id: 'diabetic', label: '🩸 Type 1 / Type 2 Diabetic Mode (Glucose & Net Carbs)', active: false },
+                { id: 'renal', label: '🫘 Renal Kidney Protocol (Low Sodium & Potassium)', active: false },
+                { id: 'hypertension', label: '❤️ DASH / Anti-Hypertension Protocol', active: true },
+              ].map(mode => (
+                <label key={mode.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', cursor: 'pointer', fontSize: '0.85rem' }}>
+                  <input type="checkbox" defaultChecked={mode.active} onChange={() => toast.success('Medical Mode preference updated!')} style={{ accentColor: 'var(--primary)' }} />
+                  <span>{mode.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           <button
             className="btn btn-primary btn-lg"
             onClick={handleSave}
             disabled={saving}
-            style={{ width: '100%', justifyContent: 'center' }}
+            style={{ width: '100%', justifyContent: 'center', borderRadius: 16 }}
           >
             {saving ? t('common.saving') : t('profile.saveProfile')}
           </button>
         </div>
       </div>
+
+      {/* Device Connection Modal */}
+      <AnimatePresence>
+        {selectedDeviceModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setSelectedDeviceModal(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="glass"
+              onClick={e => e.stopPropagation()}
+              style={{ width: '100%', maxWidth: 460, padding: 28, position: 'relative', border: '1px solid rgba(0, 245, 160, 0.35)', background: '#0a0d14' }}>
+
+              <button onClick={() => setSelectedDeviceModal(null)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#94a3b8', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
+                <div style={{ fontSize: '2.5rem', width: 58, height: 58, borderRadius: 16, background: 'rgba(0,245,160,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,245,160,0.3)', flexShrink: 0 }}>
+                  {selectedDeviceModal.icon}
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#ffffff' }}>
+                    {selectedDeviceModal.connected ? 'Manage' : 'Connect'} {selectedDeviceModal.name}
+                  </h3>
+                  <div style={{ fontSize: '0.78rem', color: selectedDeviceModal.connected ? '#00e5a0' : '#94a3b8', marginTop: 3 }}>
+                    {selectedDeviceModal.connected ? '✓ Device Currently Paired & Syncing' : 'Scan QR Code to Authorize Sync'}
+                  </div>
+                </div>
+              </div>
+
+              {!selectedDeviceModal.connected ? (<>
+                {/* QR Code Scanner Step */}
+                <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                  <div style={{ fontSize: '0.82rem', color: '#94a3b8', marginBottom: 14 }}>
+                    Open <strong style={{ color: '#f8fafc' }}>{selectedDeviceModal.name}</strong> on your phone, go to <strong style={{ color: '#f8fafc' }}>Settings → Third-Party Apps</strong>, then scan this QR code to authorize data access:
+                  </div>
+
+                  {/* Simulated QR Code */}
+                  <div style={{ display: 'inline-block', padding: 14, background: '#fff', borderRadius: 16, marginBottom: 14, position: 'relative' }}>
+                    <svg width="140" height="140" viewBox="0 0 140 140" style={{ display: 'block' }}>
+                      {/* QR code pattern simulation */}
+                      <rect width="140" height="140" fill="white"/>
+                      {/* Top-left finder */}
+                      <rect x="10" y="10" width="40" height="40" fill="black"/>
+                      <rect x="16" y="16" width="28" height="28" fill="white"/>
+                      <rect x="22" y="22" width="16" height="16" fill="black"/>
+                      {/* Top-right finder */}
+                      <rect x="90" y="10" width="40" height="40" fill="black"/>
+                      <rect x="96" y="16" width="28" height="28" fill="white"/>
+                      <rect x="102" y="22" width="16" height="16" fill="black"/>
+                      {/* Bottom-left finder */}
+                      <rect x="10" y="90" width="40" height="40" fill="black"/>
+                      <rect x="16" y="96" width="28" height="28" fill="white"/>
+                      <rect x="22" y="102" width="16" height="16" fill="black"/>
+                      {/* Data modules */}
+                      {[60,66,72,78,84].map(x => [60,66,72,78,84].map(y => (x+y)%12<6 &&
+                        <rect key={`${x}${y}`} x={x} y={y} width="5" height="5" fill="black"/>
+                      ))}
+                      {[10,16,22,28,34].map(x => [60,66,72].map(y =>
+                        <rect key={`d${x}${y}`} x={x} y={y} width="5" height="5" fill="black"/>
+                      ))}
+                      {[90,96,102,108,114,120].map(x => [60,66,72,78].map(y => (x+y)%10<5 &&
+                        <rect key={`e${x}${y}`} x={x} y={y} width="5" height="5" fill="black"/>
+                      ))}
+                      {[60,66,72,78,84].map(x => [90,96,102,108,114].map(y => (x*y)%8<4 &&
+                        <rect key={`f${x}${y}`} x={x} y={y} width="5" height="5" fill="black"/>
+                      ))}
+                    </svg>
+                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.8 }}
+                      style={{ position: 'absolute', inset: 8, border: '2px solid #00f5a0', borderRadius: 10, pointerEvents: 'none' }} />
+                  </div>
+
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    📱 QR expires in <strong style={{ color: '#ffd166' }}>5:00</strong> — scan now to pair instantly
+                  </div>
+                </div>
+
+                {/* Steps */}
+                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: 14, marginBottom: 20, border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '0.82rem', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {[
+                      `1. Open ${selectedDeviceModal.name} app on your phone`,
+                      '2. Go to Settings → Third-Party Apps → Add App',
+                      '3. Tap "Scan QR" and point camera at the code above',
+                      '4. Grant access for Workouts, Calories & Heart Rate',
+                    ].map((step, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                        <span style={{ color: '#00e5a0', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                        <span>{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', fontSize: '0.95rem' }}
+                  onClick={() => { toggleWearable(selectedDeviceModal.id); setSelectedDeviceModal(null); }}>
+                  ⚡ Authorize & Sync Device
+                </button>
+              </>) : (<>
+                {/* Already connected — sync status */}
+                <div style={{ background: 'rgba(0,245,160,0.05)', borderRadius: 14, padding: 16, marginBottom: 20, border: '1px solid rgba(0,245,160,0.2)' }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#00e5a0', marginBottom: 10 }}>📊 Live Sync Data</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '0.82rem', color: '#94a3b8' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>🔥 Active Calories Today</span><strong style={{ color: '#ff6b6b' }}>312 kcal</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>👣 Steps</span><strong style={{ color: '#4fc3f7' }}>7,842</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>❤️ Avg Heart Rate</span><strong style={{ color: '#f06292' }}>72 bpm</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>🏃 Workouts Synced</span><strong style={{ color: '#00e5a0' }}>2 sessions</strong></div>
+                  </div>
+                </div>
+
+                <button className="btn btn-ghost" style={{ width: '100%', color: '#ff6b6b', justifyContent: 'center' }}
+                  onClick={() => { toggleWearable(selectedDeviceModal.id); setSelectedDeviceModal(null); }}>
+                  Disconnect {selectedDeviceModal.name}
+                </button>
+              </>)}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+

@@ -156,15 +156,59 @@ export default function DashboardPage() {
           <p>Good {getGreeting(t)}, <strong>{user?.name?.split(' ')[0]}</strong>!<br/>Here's your nutrition today.</p>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Link to="/game" className="btn btn-primary" style={{ textDecoration: 'none' }}>
+            🎮 Bio-Pet Arcade
+          </Link>
           <button className="hide-print btn btn-ghost" onClick={toggleTheme} style={{ padding: '10px' }}>
             <span style={{ fontSize: '1.2rem' }}>{theme === 'dark' ? '☀️' : '🌙'}</span>
           </button>
-          <button className="hide-print btn btn-ghost" onClick={handleDownloadPDF}>
-            <span style={{ fontSize: '1.2rem' }}>📄</span> <span className="hide-on-mobile">Download</span>
+          <button className="hide-print btn btn-ghost" onClick={handleDownloadPDF} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span>📄</span> {t('dashboard.downloadPDF')}
           </button>
-          <Link to="/scanner" className="btn btn-primary hide-print">{t('dashboard.scanFood')}</Link>
         </div>
       </div>
+
+      {/* Bio-Pet Gamification Companion Banner */}
+      <Link to="/game" style={{ textDecoration: 'none' }}>
+        <motion.div 
+          whileHover={{ scale: 1.01 }}
+          className="glass" 
+          style={{ 
+            padding: '16px 24px', 
+            borderRadius: 22, 
+            marginBottom: 24, 
+            background: 'linear-gradient(135deg, rgba(0,245,160,0.12) 0%, rgba(139,92,246,0.12) 100%)',
+            border: '1px solid rgba(0,245,160,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justify: 'space-between',
+            gap: 16,
+            boxShadow: '0 8px 30px rgba(0,245,160,0.1)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ fontSize: '2.4rem', filter: 'drop-shadow(0 0 10px rgba(0,245,160,0.8))' }}>
+              🦊
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontWeight: 800, fontSize: '1.05rem', color: '#fff' }}>
+                  Emerald Spark • Level 5
+                </span>
+                <span className="badge badge-green" style={{ fontSize: '0.72rem' }}>
+                  Ecstatic ✨
+                </span>
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                Daily Quests: 2/4 completed • 1,280 XP • 340 💎 NutriCredits
+              </p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--primary)', fontWeight: 700, fontSize: '0.9rem' }}>
+            <span>Play Arcade →</span>
+          </div>
+        </motion.div>
+      </Link>
 
       {/* Nutrition Alerts */}
       {alerts.length > 0 && (
