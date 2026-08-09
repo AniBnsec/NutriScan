@@ -9,12 +9,16 @@ const auth = require('../middleware/auth');
 // GET /api/dashboard/today
 router.get('/today', auth, async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    // Use local date (not UTC) to handle all timezones correctly
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const endOfDay   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     const [log, meals] = await Promise.all([
       DailyLog.findOne({ userId: req.user._id, date: today }),
       Meal.find({
         userId: req.user._id,
-        createdAt: { $gte: new Date(today + 'T00:00:00Z'), $lte: new Date(today + 'T23:59:59Z') },
+        createdAt: { $gte: startOfDay, $lte: endOfDay },
       }).sort({ createdAt: -1 }),
     ]);
     res.json({

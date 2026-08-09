@@ -54,7 +54,7 @@ export default function LandingPage() {
   return (
     <div className="landing" style={{ position: 'relative', overflow: 'hidden' }}>
       <BackgroundGrid />
-      
+
       {/* Navbar */}
       <nav className="landing-nav">
         <div className="logo-mark" style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: 'clamp(1rem, 4vw, 1.25rem)', whiteSpace: 'nowrap' }}>

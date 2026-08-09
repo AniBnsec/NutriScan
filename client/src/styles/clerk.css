@@ -139,7 +139,9 @@
   overflow: visible !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  pointer-events: auto !important;
 }
+
 
 .cl-formFieldInputGroup:focus-within {
   border: none !important;
@@ -159,6 +161,10 @@
   outline: none !important;
   box-sizing: border-box !important;
   transition: all 0.25s ease !important;
+  pointer-events: auto !important;
+  cursor: text !important;
+  -webkit-user-select: text !important;
+  user-select: text !important;
 }
 
 .cl-formFieldInput:focus,
