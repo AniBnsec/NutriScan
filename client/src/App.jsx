@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
@@ -37,11 +37,24 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// Redirects away from /login and /register if already signed in
+// Redirects away from /login and /register if already signed in.
+// IMPORTANT: must NOT redirect during Clerk's SSO callback sub-paths
+// (e.g. /login/sso-callback, /login/factor-one) — those are part of
+// the OAuth flow and need to complete before we can navigate away.
 function PublicRoute({ children }) {
   const { isLoaded, isSignedIn } = useAuth();
+  const location = useLocation();
+
+  // Allow any Clerk internal sub-routes to render freely
+  const isClerkInternalPath =
+    location.pathname.includes('sso-callback') ||
+    location.pathname.includes('factor-one') ||
+    location.pathname.includes('factor-two') ||
+    location.pathname.includes('reset-password') ||
+    location.pathname.includes('verify');
+
   if (!isLoaded) return <Spinner />;
-  if (isSignedIn) return <Navigate to="/dashboard" replace />;
+  if (isSignedIn && !isClerkInternalPath) return <Navigate to="/dashboard" replace />;
   return children;
 }
 

@@ -11,7 +11,6 @@ export default function RegisterPage() {
         path="/register"
         signInUrl="/login"
         fallbackRedirectUrl="/dashboard"
-        forceRedirectUrl="/dashboard"
       />
     </AuthLayout>
   );
