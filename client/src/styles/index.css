@@ -428,7 +428,7 @@ select option {
   min-height: 100vh;
   display: grid; place-items: center;
   background: var(--bg-deep);
-  position: relative; overflow: hidden;
+  position: relative; overflow: visible;
 }
 .auth-bg::before {
   content: '';
@@ -1278,7 +1278,7 @@ input[type="range"]:disabled { opacity: 0.4; cursor: not-allowed; }
   padding: 36px 32px 32px;
   border-radius: 28px !important;
   position: relative;
-  overflow: hidden !important;
+  overflow: visible;
   box-sizing: border-box;
 }
 
