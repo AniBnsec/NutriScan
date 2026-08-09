@@ -8,7 +8,7 @@ export default function RegisterPage() {
       <SignUp
         appearance={clerkAppearance}
         signInUrl="/login"
-        fallbackRedirectUrl="/dashboard"
+        forceRedirectUrl="/dashboard"
       />
     </AuthLayout>
   );

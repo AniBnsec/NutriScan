@@ -38,19 +38,32 @@ document.documentElement.setAttribute('dir', RTL_LANGUAGES.includes(savedLang) ?
 // Init meal reminders if previously enabled
 initRemindersFromStorage();
 
+import { useNavigate } from 'react-router-dom';
+
+function ClerkProviderWithRoutes({ children }) {
+  const navigate = useNavigate();
+  return (
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      routerPush={(to) => navigate(to)}
+      routerReplace={(to) => navigate(to, { replace: true })}
+      forceRedirectUrl="/dashboard"
+      signInUrl="/login"
+      signUpUrl="/register"
+      localization={{
+        formFieldInputPlaceholder__username: 'Username',
+      }}
+    >
+      {children}
+    </ClerkProvider>
+  );
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <ClerkProvider
-        publishableKey={PUBLISHABLE_KEY}
-        fallbackRedirectUrl="/dashboard"
-        signInUrl="/login"
-        signUpUrl="/register"
-        localization={{
-          formFieldInputPlaceholder__username: 'Username',
-        }}
-      >
-        <BrowserRouter>
+      <BrowserRouter>
+        <ClerkProviderWithRoutes>
           <LanguageProvider>
             <ClerkAuthBridge />
             <BackgroundGrid />
@@ -72,8 +85,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               }}
             />
           </LanguageProvider>
-        </BrowserRouter>
-      </ClerkProvider>
+        </ClerkProviderWithRoutes>
+      </BrowserRouter>
     </ErrorBoundary>
   </React.StrictMode>
 );
